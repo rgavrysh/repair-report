@@ -2,7 +2,7 @@
 *.idea
 target/
 build/
-*.gradle
 out/
 logs/
 .DS_Store
+.gradle/
