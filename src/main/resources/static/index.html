@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>get-rep</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.get("http://localhost:8080/principal", function(data, status){
+                $("#welcome-name").text("Hi ...");
+                // $("#welcome-name").text("Hi " + data + "!");
+            });
+
+//projects table
+            $("#result_table").click(function(){
+                $.get("http://localhost:8080/projects", function(data, status){
+                    var response = data;
+                    console.log(data);
+
+                    var table = $('<table>').addClass("m_tb");
+                    var theader = $('<tr>').addClass('t_header');
+                    var hindex = $('<th>').addClass('t_header_column').text('#');
+                    var hname = $('<th>').addClass('t_header_column').text('Client Name');
+                    var hphone = $('<th>').addClass('t_header_column').text('Phone');
+                    var haddress = $('<th>').addClass('t_header_column').text('Address');
+                    var hbutton = $('<th>').addClass('t_header_button');
+                    theader.append(hindex);
+                    theader.append(hname);
+                    theader.append(hphone);
+                    theader.append(haddress);
+                    theader.append(hbutton);
+
+                    table.append(theader);
+                    for (i=0; i<data.length; i++){
+                        var header = $('<header>')
+                        var row = $('<tr>').addClass('t_row').text(i + 1); //column index
+                        var clientName = $('<td>').addClass('t_data').text(data[i].clientName);
+                        var clientPhone = $('<td>').addClass('t_data').text(data[i].clientPhone);
+                        var address = $('<td>').addClass('t_data').text(JSON.stringify(data[i].address));
+                        var getRep = $('<td>').addClass('t_data_element');
+                        var repButton = $('<button>').attr('id', i).addClass('show_report').text('show rep');
+                        repButton.click(function(){
+                            window.location = "http://localhost:8080/report.html?id=" + (parseInt(this.id)+1);
+                        });
+                        getRep.append(repButton);
+                        row.append(clientName);
+                        row.append(clientPhone);
+                        row.append(address);
+                        row.append(getRep);
+                        table.append(row);
+                    }
+                    $("#prj_table").append(table);
+                })
+            });
+
+            $('#create_project').click(function(){
+                window.location = "http://localhost:8080/create-project.html";
+            })
+
+        })
+    </script>
+</head>
+<body>
+<div>
+    <h2 id="welcome-name">Hi ...!</h2>
+
+</div>
+<button class="btn btn-primary" id="result_table">Show Projects</button>
+<button class="btn btn-primary" id='create_project'>Create new Project</button>
+<p/>
+<div id="prj_table">
+    <table></table>
+</div>
+</body>
+</html>

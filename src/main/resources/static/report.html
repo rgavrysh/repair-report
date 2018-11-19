@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>get-rep</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+    	$(document).ready(function(){
+    		var url = new URL(window.location.href);
+    		var projectId = url.search.split('=')[1];
+    		$('#prj_report').text('Report ' + projectId);
+
+
+    		$.get("http://localhost:8080/project/"+projectId, function(data, status){
+                    var clientName = $('<div>').attr('id', 'cl_name').text(data.clientName);
+		    		var address = $('<div>').attr('id', 'addr').text(JSON.stringify(data.address));
+		    		$('#prj_data').append(clientName);
+		    		$('#prj_data').append(address);
+		    		var download = $('<button>').attr('id', 'gen-repo').text('Generate Report');
+                    download.click(function(){
+                    	window.location.href = "http://localhost:8080/download/"+projectId;
+                    });
+
+                    $('#prj_data').append(download);
+
+		    		var table = $('<table>').addClass("task_tb");
+                    var theader = $('<tr>').addClass('t_header');
+                    // var hindex = $('<th>').addClass('t_header_column').text('#');
+                    var hname = $('<th>').addClass('t_header_column').text('Description');
+                    var hphone = $('<th>').addClass('t_header_column').text('Tariff');
+                    var haddress = $('<th>').addClass('t_header_column').text('Qty');
+                    var hbutton = $('<th>').addClass('t_header_column').text('Total');
+                    // theader.append(hindex);
+                    theader.append(hname);
+                    theader.append(hphone);
+                    theader.append(haddress);
+                    theader.append(hbutton);
+
+                    table.append(theader);
+
+                    var tasksMap = Object.keys(data.tasks);
+                    tasksMap.forEach(function(key){
+                        var asObject = JSON.parse(key);
+                    	// var index = $('<tr>').addClass('t_row').text(1); //column index
+                    	var taskDescription = $('<tr>').addClass('t_data').text(asObject.description);
+                    	var taskTariff = $('<td>').addClass('t_data').text(asObject.tariff);
+                    	var taskQty = $('<td>').addClass('t_data').text(data.tasks[key]);
+                        var total = $('<td>').addClass('t_data').text(asObject.tariff*data.tasks[key]);
+                    	// index.append(taskDescription);
+                    	taskDescription.append(taskTariff);
+                    	taskDescription.append(taskQty);
+                        taskDescription.append(total);
+                        table.append(taskDescription);
+                    })
+
+		    		$('#metadata').append(table);
+                });
+    	})
+    </script>
+</head>
+<body>
+<div>
+    <h2 id="prj_report">Report</h2>
+    <h4 id="prj_data"></h4>
+    <p>
+    <div id="metadata"></div>
+    </p>
+</div>
+</body>
+</html>
