@@ -1,6 +1,7 @@
 package org.repair.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.context.annotation.SessionScope;
 
 import javax.persistence.*;
 import java.io.Serializable;

@@ -4,60 +4,79 @@
     <meta charset="UTF-8">
     <title>get-rep</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function(){
             $.get("http://localhost:8080/principal", function(data, status){
-                $("#welcome-name").text("Hi ...");
-                // $("#welcome-name").text("Hi " + data + "!");
+                $("#welcome-name").text("Hi " + data + "!");
             });
 
 //projects table
             $("#result_table").click(function(){
-                $.get("http://localhost:8080/projects", function(data, status){
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost:8080/projects",
+                }).done(function(data, status){
                     var response = data;
                     console.log(data);
 
-                    var table = $('<table>').addClass("m_tb");
-                    var theader = $('<tr>').addClass('t_header');
-                    var hindex = $('<th>').addClass('t_header_column').text('#');
-                    var hname = $('<th>').addClass('t_header_column').text('Client Name');
-                    var hphone = $('<th>').addClass('t_header_column').text('Phone');
-                    var haddress = $('<th>').addClass('t_header_column').text('Address');
-                    var hbutton = $('<th>').addClass('t_header_button');
-                    theader.append(hindex);
-                    theader.append(hname);
-                    theader.append(hphone);
-                    theader.append(haddress);
-                    theader.append(hbutton);
+                    var table = $("<table>").addClass("table");
+                    var head = $("<thead>").addClass("thead-dark");
+                    var tr = $("<tr>");
+                    var hindex = $("<th>").attr("scope", "col").text("#");
+                    var hname = $("<th>").attr("scope", "col").text("Client Name");
+                    var hphone = $("<th>").attr("scope", "col").text("Client Phone");
+                    var haddress = $("<th>").attr("scope", "col").text('Street');
+                    var hbutton = $("<th>").attr("scope", "col");
+                    tr.append(hindex);
+                    tr.append(hname);
+                    tr.append(hphone);
+                    tr.append(haddress);
+                    tr.append(hbutton);
+                    head.append(tr);
 
-                    table.append(theader);
+                    table.append(head);
+                    var tbody = $("<tbody>");
                     for (i=0; i<data.length; i++){
-                        var header = $('<header>')
-                        var row = $('<tr>').addClass('t_row').text(i + 1); //column index
-                        var clientName = $('<td>').addClass('t_data').text(data[i].clientName);
-                        var clientPhone = $('<td>').addClass('t_data').text(data[i].clientPhone);
-                        var address = $('<td>').addClass('t_data').text(JSON.stringify(data[i].address));
-                        var getRep = $('<td>').addClass('t_data_element');
-                        var repButton = $('<button>').attr('id', i).addClass('show_report').text('show rep');
-                        repButton.click(function(){
+                        var tbr = $("<tr>");
+                        var index = $("<th>").text(i + 1);
+                        var clientName = $("<td>").text(data[i].clientName);
+                        var clientPhone = $("<td>").text(data[i].clientPhone);
+                        var addressStreet = $("<td>").addClass("t_data").text(data[i].address.street);
+                        var actionCol = $("<td>");
+                        var showButton = $("<a>").attr("id", i).addClass("badge badge-info").text("show");
+                        showButton.click(function(){
                             window.location = "http://localhost:8080/report.html?id=" + (parseInt(this.id)+1);
                         });
-                        getRep.append(repButton);
-                        row.append(clientName);
-                        row.append(clientPhone);
-                        row.append(address);
-                        row.append(getRep);
-                        table.append(row);
+                        tbr.append(index);
+                        tbr.append(clientName);
+                        tbr.append(clientPhone);
+                        tbr.append(addressStreet);
+                        actionCol.append(showButton);
+                        tbr.append(actionCol);
+                        tbody.append(tbr);
                     }
+                    table.append(tbody);
                     $("#prj_table").append(table);
-                })
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                });
             });
 
-            $('#create_project').click(function(){
+            $("#create_project").click(function(){
                 window.location = "http://localhost:8080/create-project.html";
             })
 
@@ -70,7 +89,7 @@
 
 </div>
 <button class="btn btn-primary" id="result_table">Show Projects</button>
-<button class="btn btn-primary" id='create_project'>Create new Project</button>
+<button class="btn btn-primary" id="create_project">Create new Project</button>
 <p/>
 <div id="prj_table">
     <table></table>

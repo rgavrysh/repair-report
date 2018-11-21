@@ -27,6 +27,7 @@ repositories {
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('com.allanditzel:spring-security-csrf-token-filter:1.1')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation('com.h2database:h2')
 //    implementation('com.itextpdf:itextpdf:5.5.10')

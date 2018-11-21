@@ -3,72 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <title>get-rep</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
 
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-    	$(document).ready(function(){
-    		var url = new URL(window.location.href);
-    		var projectId = url.search.split('=')[1];
-    		$('#prj_report').text('Report ' + projectId);
+        $(document).ready(function(){
+            var url = new URL(window.location.href);
+            var projectId = url.search.split('=')[1];
+            $('#prj_report').text('Report ' + projectId);
+
+            var csrfToken;
+            $.ajax({
+              type: 'GET',
+              url: '/create-project.html'
+            }).done(function (data, textStatus, jqXHR) {
+              csrfToken = jqXHR.getResponseHeader('X-CSRF-TOKEN');
+                console.log(csrfToken);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+              console.log(errorThrown);
+            });
 
 
-    		$.get("http://localhost:8080/project/"+projectId, function(data, status){
-                    var clientName = $('<div>').attr('id', 'cl_name').text(data.clientName);
-		    		var address = $('<div>').attr('id', 'addr').text(JSON.stringify(data.address));
-		    		$('#prj_data').append(clientName);
-		    		$('#prj_data').append(address);
-		    		var download = $('<button>').attr('id', 'gen-repo').text('Generate Report');
-                    download.click(function(){
-                    	window.location.href = "http://localhost:8080/download/"+projectId;
-                    });
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/project/"+projectId,
+            }).done(function(data, status, jqXHR){
+                console.log(data);
+                $("#clientname").val(data.clientName);
+                $("#clientphone").val(data.clientPhone);
+                $("#street").val(data.address.street);
+                $("#streetnumber").val(data.address.streetNumber);
+                $("#apartment").val(data.address.apartment);
+                $("#city").val(data.address.city);
+                $("#postal").val(data.address.postalCode);
+                var download = $('<button>').attr('id', 'gen-repo').attr('class', 'btn btn-success').text('Generate Report');
+                download.click(function(){
+                    window.location.href = "http://localhost:8080/download/"+projectId;
+                });
 
-                    $('#prj_data').append(download);
+                $('#prj-gen').append(download);
 
-		    		var table = $('<table>').addClass("task_tb");
-                    var theader = $('<tr>').addClass('t_header');
-                    // var hindex = $('<th>').addClass('t_header_column').text('#');
-                    var hname = $('<th>').addClass('t_header_column').text('Description');
-                    var hphone = $('<th>').addClass('t_header_column').text('Tariff');
-                    var haddress = $('<th>').addClass('t_header_column').text('Qty');
-                    var hbutton = $('<th>').addClass('t_header_column').text('Total');
-                    // theader.append(hindex);
-                    theader.append(hname);
-                    theader.append(hphone);
-                    theader.append(haddress);
-                    theader.append(hbutton);
+// header
+                var table = $("<table>").addClass("table");
+                var head = $("<thead>").addClass("thead-dark");
+                var tr = $("<tr>");
+                var hindex = $("<th>").addClass("t_header_column").attr("scope", "col").text("#");
+                var hname = $("<th>").addClass("t_header_column").attr("scope", "col").text("Description");
+                var hphone = $("<th>").addClass("t_header_column").attr("scope", "col").text("Tariff");
+                var haddress = $("<th>").addClass("t_header_column").attr("scope", "col").text("Qty");
+                var hbutton = $("<th>").addClass("t_header_column").attr("scope", "col").text("Total");
+                tr.append(hindex);
+                tr.append(hname);
+                tr.append(hphone);
+                tr.append(haddress);
+                tr.append(hbutton);
+                head.append(tr);
+                table.append(head);
 
-                    table.append(theader);
+//tbody
+                var tasksMap = Object.keys(data.tasks);
+                var tbody = $("<tbody>");
+                tasksMap.forEach(function(key){
+                    var asObject = JSON.parse(key);
+                    var tbr = $("<tr>");
+                    var index = $("<th>").attr("scope", "row").addClass("t_row").text(asObject.id); //column index
+                    var taskDescription = $("<td>").addClass("t_data").text(asObject.description);
+                    var taskTariff = $("<td>").addClass("t_data").text(asObject.tariff);
+                    var taskQty = $("<td>").addClass("t_data").text(data.tasks[key]);
+                    var total = $("<td>").addClass("t_data").text(asObject.tariff*data.tasks[key]);
+                    tbr.append(index);
+                    tbr.append(taskDescription);
+                    tbr.append(taskTariff);
+                    tbr.append(taskQty);
+                    tbr.append(total);
+                    tbody.append(tbr);
+                });
+                table.append(tbody);
+                $("#metadata").append(table);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+            });
 
-                    var tasksMap = Object.keys(data.tasks);
-                    tasksMap.forEach(function(key){
-                        var asObject = JSON.parse(key);
-                    	// var index = $('<tr>').addClass('t_row').text(1); //column index
-                    	var taskDescription = $('<tr>').addClass('t_data').text(asObject.description);
-                    	var taskTariff = $('<td>').addClass('t_data').text(asObject.tariff);
-                    	var taskQty = $('<td>').addClass('t_data').text(data.tasks[key]);
-                        var total = $('<td>').addClass('t_data').text(asObject.tariff*data.tasks[key]);
-                    	// index.append(taskDescription);
-                    	taskDescription.append(taskTariff);
-                    	taskDescription.append(taskQty);
-                        taskDescription.append(total);
-                        table.append(taskDescription);
+//add new tasks
+            $('#dropdown-btn').click(function(){
+                console.log('remove all links before');
+                $('.dropdown-item').remove();
+                $.ajax({
+                    type: "GET",
+                    url: "http://localhost:8080/tasks/descriptions",
+                    contentType: "application/json",
+                }).done(function(data, status){
+                    console.log(status);
+                    console.log(data);
+                    data.forEach(function(item){
+                        var tsk = $('<a>').attr('class', 'dropdown-item').attr('href', '#').text(item);
+                        tsk.click((function(){
+                            $('.task-desc').val(this.text);
+                        }));
+                        $('.dropdown-menu').append(tsk);
                     })
 
-		    		$('#metadata').append(table);
+                }).fail(function(status, error){
+                    console.log(error);
                 });
-    	})
+            });
+
+            $('#add-task-btn').click(function(){
+                console.log('add new task to project');
+                if ($("#task-desc-input").val().length == 0 ||
+                    $("#tariff").val() < 0.1 ||
+                    $("#qty").val() < 0){
+                    window.alert("Fill in fields.");
+                    return false;
+                }
+                var newTask = {"shortDescription":$('#task-desc-input').val(), "tariff": $('#tariff').val(), "qty": $('#qty').val()};
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:8080/task?id="+projectId,
+                    dataType: "json",
+                    data: JSON.stringify(newTask),
+                    contentType: "application/json",
+                    beforeSend: function(request) {
+                        request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                    }
+                }).done(function(data, status, jqXHR){
+                    console.log(status);
+                    console.log(data);
+                    console.log('reload page to refresh task-table');
+                    location.reload();
+                }).fail(function(jqXHR, status, error){
+                    console.log(error);
+                });
+            })
+});
+
+
     </script>
 </head>
 <body>
-<div>
-    <h2 id="prj_report">Report</h2>
-    <h4 id="prj_data"></h4>
-    <p>
-    <div id="metadata"></div>
-    </p>
-</div>
+<h2 id="prj_report" align="center">Report</h2>
+<h4 id="prj_data">Project Info:</h4>
+<div id="prj-gen"></div>
+<form>
+    <fieldset disabled>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="clientname">Client Name</label>
+                <input type="text" class="form-control" id="clientname" placeholder="Name" autofocus="true" >
+            </div>
+            <div class="form-group col-md-4">
+                <label for="clientphone">Client Phone</label>
+                <input type="text" class="form-control" id="clientphone" placeholder="0970000000" >
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="street">Street</label>
+                <input type="text" class="form-control" id="street" placeholder="Naukova" >
+            </div>
+            <div class="form-group col-md-4">
+                <label for="streetnumber">Street#</label>
+                <input type="text" id="streetnumber" class="form-control" placeholder="1" >
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="apartment">Address 2</label>
+                <input type="text" class="form-control" id="apartment" placeholder="Apartment, floor" >
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="city">City</label>
+                <input type="text" class="form-control" id="city" placeholder="Lviv" >
+            </div>
+            <div class="form-group col-md-2">
+                <label for="postal">Zip</label>
+                <input type="text" class="form-control" id="postal" placeholder="79000" >
+            </div>
+        </div>
+        <div class="separator">Dimensions:</div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="walls">Walls</label>
+                <input type="number" class="form-control" id="walls" placeholder="0.0" >
+            </div>
+            <div class="form-group col-md-4">
+                <label for="ceilings">Ceilings</label>
+                <input type="number" class="form-control" id="ceilings" placeholder="0.0" >
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="floors">Floors</label>
+                <input type="number" class="form-control" id="floors" placeholder="0.0" >
+            </div>
+            <div class="form-group col-md-4">
+                <label for="slopes">Slopes</label>
+                <input type="number" class="form-control" id="slopes" placeholder="0.0">
+            </div>
+        </div>
+    </fieldset>
+    <button id="edit-btn" class="btn btn-primary">edit</button>
+</form>
+<p/>
+<form id="add-task-form">
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <button id="dropdown-btn" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Tasks
+                    </button>
+                    <div class="dropdown-menu"></div>
+                </div>
+                <input id="task-desc-input" type="text" class="task-desc form-control" aria-label="Text input with dropdown button">
+            </div>
+        </div>
+        <div class="form-group col-md-2">
+            <input type="number" class="form-control" id="tariff" placeholder="tariff" min="0.1" required="">
+        </div>
+        <div class="form-group col-md-2">
+            <input type="number" class="form-control" id="qty" placeholder="qty" min="1" required="">
+        </div>
+        <div class="form-group col-md-2">
+            <button type="submit" id="add-task-btn" class="btn btn-success">Add Task</button>
+        </div>
+    </div>
+</form>
+<div id="metadata"></div>
 </body>
 </html>

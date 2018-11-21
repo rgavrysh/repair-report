@@ -15,13 +15,21 @@ public class ProjectTasks implements Serializable {
     @Id
     @Column(name = "TASK_ID")
     private Long taskId;
-    private Integer qty;
+    private Double qty;
 
-    public Integer getQty() {
+    public ProjectTasks() {
+    }
+
+    public ProjectTasks(Long prjId, Long taskId) {
+        this.prjId = prjId;
+        this.taskId = taskId;
+    }
+
+    public Double getQty() {
         return qty;
     }
 
-    public void setQty(Integer qty) {
+    public void setQty(Double qty) {
         this.qty = qty;
     }
 }

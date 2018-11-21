@@ -26,7 +26,7 @@ public class LoginDetailService implements UserDetailsService {
         }
     }
 
-    private static final class WorkerDetail implements UserDetails {
+    private static final class WorkerDetail extends Worker implements UserDetails {
         private final Worker worker;
 
         private WorkerDetail(Worker worker) {

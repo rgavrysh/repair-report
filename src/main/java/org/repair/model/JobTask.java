@@ -26,6 +26,10 @@ public class JobTask implements Serializable {
         this.tariff = tariff;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getShortDescription() {
         return shortDescription;
     }

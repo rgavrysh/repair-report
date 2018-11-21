@@ -21,7 +21,7 @@ public class Project implements Serializable {
     private String clientName;
     @Column(name = "CLIENT_PHONE")
     private String clientPhone;
-    @OneToOne(targetEntity = Address.class)
+    @OneToOne(targetEntity = Address.class, cascade = CascadeType.PERSIST)
     private Address address;
     //todo: use @Embedded object for dimensions
     private Double walls;

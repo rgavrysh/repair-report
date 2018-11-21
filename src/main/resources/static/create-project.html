@@ -4,48 +4,116 @@
     <meta charset="UTF-8">
     <title>get-rep</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            var csrfToken;
+            $.ajax({
+              type: 'GET',
+              url: '/create-project.html'
+            }).done(function (data, textStatus, jqXHR) {
+              csrfToken = jqXHR.getResponseHeader('X-CSRF-TOKEN');
+                console.log(csrfToken);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+              console.log(errorThrown);
+            });
+
+            $('#add-btn').click(function(){
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                var obj = {"clientName":$('#clientname').val(), "clientPhone": $('#clientphone').val(), "street": $('#street').val(),
+                "streetNumber": $('#streetnumber').val()};
+                console.log(header);
+                console.log(token);
+                console.log(obj);
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:8080/project",
+                    dataType: "json",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json",
+                    beforeSend: function(request) {
+                        request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                    }
+                }).done(function(data, status, jqXHR){
+                    console.log(status);
+                    console.log(data);
+                    window.location = '/';
+                }).fail(function(jqXHR, status, error){
+                    console.log(error);
+                });
+            });
+    });
+
+    </script>
 </head>
 <body>
+<h2 align="center">Create Project</h2>
 <div class="container">
-    <form class="form-create" method="post" action="/project/create">
-        <h2 class="form-create-heading">Create new Project</h2>
-        <p>Client Info:</p>
-        <p>
-            <label for="clientname" class="sr-only">Client Name</label>
-            <input type="text" id="clientname" name="clientname" class="form-control" placeholder="Client Name" required="true" autofocus="true">
-        </p>
-        <p>
-            <label for="clientphone" class="sr-only">Client Phone</label>
-            <input type="text" id="clientphone" name="clientphone" class="form-control" placeholder="Client Phone" required="">
-        </p>
-        <p>Address:</p>
-        <p>
-            <label for="city" class="sr-only">City</label>
-            <input type="text" id="city" name="city" class="form-control" placeholder="City">
-        </p>
-        <p>
-            <label for="street" class="sr-only">Street</label>
-            <input type="text" id="street" name="street" class="form-control" placeholder="Street" required="true">
-        </p>
-        <p>
-            <label for="streetnumber" class="sr-only">Street #</label>
-            <input type="text" id="streetnumber" name="streetnumber" class="form-control" placeholder="Street #" required="true">
-        </p>
-        <p>
-            <label for="apartment" class="sr-only">Ap</label>
-            <input type="text" id="apartment" name="apartment" class="form-control" placeholder="Ap">
-        </p>
-        <p>
-            <label for="postal" class="sr-only">postal</label>
-            <input type="text" id="postal" name="postal" class="form-control" placeholder="Postal">
-        </p>
-        <input name="_csrf" type="hidden" value="deb6380f-00bc-4ac5-beea-aeb0031b1e50">
-        <button class="btn btn-lg btn-primary btn-block" type="submit">ADD</button>
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="clientname">Client Name</label>
+                <input type="text" class="form-control" id="clientname" placeholder="Name" autofocus="true">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="clientphone">Client Phone</label>
+                <input type="text" class="form-control" id="clientphone" placeholder="0970000000">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="street">Street</label>
+                <input type="text" class="form-control" id="street" placeholder="Naukova">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="streetnumber">Street#</label>
+                <input type="text" id="streetnumber" class="form-control" placeholder="1">
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="apartment">Address 2</label>
+                <input type="text" class="form-control" id="apartment" placeholder="Apartment, floor">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="city">City</label>
+                <input type="text" class="form-control" id="city" placeholder="Lviv">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="postal">Zip</label>
+                <input type="text" class="form-control" id="postal" placeholder="79000">
+            </div>
+        </div>
+        <div class="separator">Dimensions:</div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="walls">Walls</label>
+                <input type="number" class="form-control" id="walls" placeholder="0.0">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="ceilings">Ceilings</label>
+                <input type="number" class="form-control" id="ceilings" placeholder="0.0">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="floors">Floors</label>
+                <input type="number" class="form-control" id="floors" placeholder="0.0">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="slopes">Slopes</label>
+                <input type="number" class="form-control" id="slopes" placeholder="0.0">
+            </div>
+        </div>
+        <button id="add-btn" class="btn btn-primary">ADD</button>
     </form>
 </div>
 </body>
