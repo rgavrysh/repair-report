@@ -26,7 +26,7 @@ public class LoginDetailService implements UserDetailsService {
         }
     }
 
-    private static final class WorkerDetail extends Worker implements UserDetails {
+    public static final class WorkerDetail extends Worker implements UserDetails {
         private final Worker worker;
 
         private WorkerDetail(Worker worker) {
@@ -52,6 +52,11 @@ public class LoginDetailService implements UserDetailsService {
         }
 
         @Override
+        public Long getId() {
+            return worker.getId();
+        }
+
+        @Override
         public boolean isAccountNonExpired() {
             return true;
         }
@@ -69,6 +74,10 @@ public class LoginDetailService implements UserDetailsService {
         @Override
         public boolean isEnabled() {
             return true;
+        }
+
+        public Worker getWorker() {
+            return worker;
         }
     }
 }

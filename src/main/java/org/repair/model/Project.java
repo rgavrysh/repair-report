@@ -16,6 +16,7 @@ public class Project implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //todo: use UUID (it is exposed within URL)
     private Long id;
     @Column(name = "CLIENT_NAME")
     private String clientName;
@@ -57,6 +58,10 @@ public class Project implements Serializable {
         this.floor = floor;
         this.ceiling = ceiling;
         this.slopes = slopes;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Worker getExecutor() {

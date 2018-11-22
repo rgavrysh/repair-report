@@ -6,6 +6,13 @@ public class ProjectDTO {
     private String clientPhone;
     private String street;
     private String streetNumber;
+    private String apartment;
+    private String city;
+    private String postal;
+    private Double walls;
+    private Double floor;
+    private Double ceiling;
+    private Double slopes;
 
     public ProjectDTO() {
     }
@@ -15,6 +22,22 @@ public class ProjectDTO {
         this.clientPhone = clientPhone;
         this.street = street;
         this.streetNumber = streetNumber;
+    }
+
+    public ProjectDTO(String clientName, String clientPhone, String street, String streetNumber,
+                      String apartment, String city, String postal, Double walls, Double floor,
+                      Double ceiling, Double slopes) {
+        this.clientName = clientName;
+        this.clientPhone = clientPhone;
+        this.street = street;
+        this.streetNumber = streetNumber;
+        this.apartment = apartment;
+        this.city = city;
+        this.postal = postal;
+        this.walls = walls;
+        this.floor = floor;
+        this.ceiling = ceiling;
+        this.slopes = slopes;
     }
 
     public String getClientName() {
@@ -47,5 +70,61 @@ public class ProjectDTO {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
+    }
+
+    public String getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getPostal() {
+        return postal;
+    }
+
+    public void setPostal(String postal) {
+        this.postal = postal;
+    }
+
+    public Double getWalls() {
+        return walls;
+    }
+
+    public void setWalls(Double walls) {
+        this.walls = walls;
+    }
+
+    public Double getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Double floor) {
+        this.floor = floor;
+    }
+
+    public Double getCeiling() {
+        return ceiling;
+    }
+
+    public void setCeiling(Double ceiling) {
+        this.ceiling = ceiling;
+    }
+
+    public Double getSlopes() {
+        return slopes;
+    }
+
+    public void setSlopes(Double slopes) {
+        this.slopes = slopes;
     }
 }
