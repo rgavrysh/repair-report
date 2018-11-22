@@ -35,7 +35,7 @@ dependencies {
     implementation('org.apache.poi:poi:4.0.0')
     implementation('org.apache.poi:poi-ooxml:4.0.0')
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('org.springframework.boot:spring-boot-starter-test') //includes spring-boot-test & spring-boot-test-autoconfigure
     testImplementation('org.springframework.security:spring-security-test')
     testImplementation('junit:junit:4.12')
 }
