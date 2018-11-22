@@ -1,5 +1,6 @@
 --POPULATE WORKER TABLE
 INSERT INTO worker (id, name, password, role) VALUES (1, 'vova', '$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK', 'ADMIN');
+INSERT INTO worker (id, name, password, role) VALUES (2, 'andriy', '$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK', 'USER');
 
 --POPULATE ADDRESS TABLE
 INSERT INTO address (id, apartment, city, postal_code, street, street_number) VALUES (1, 1, 'Lviv', '78048', 'Stusa', '111');
@@ -11,9 +12,9 @@ INSERT INTO task (id, descr, short_desc, tariff) values (2, 'bricks construction
 
 --POPULATE PROJECT TABLE
 INSERT INTO project (id, ceiling, client_name, client_phone, floor, slopes, walls, address_id, worker_id)
-    values (1, 10.0, 'roman', '...97254', 15.0, 5.0, 20.0, 1, 1);
+    values (1, 10.0, 'roman', '0970007254', 15.0, 5.0, 20.0, 1, 1);
 INSERT INTO project (id, ceiling, client_name, client_phone, floor, slopes, walls, address_id, worker_id)
-    values (2, 10.0, 'yura', '...3715', 15.0, 5.0, 20.0, 1, 1);
+    values (2, 10.0, 'yura', '0970003715', 15.0, 5.0, 20.0, 1, 1);
 
 --POPULATE PROJECT_TASKS TABLE
 INSERT INTO project_tasks (prj_id, task_id, qty) values (1, 1, 100);

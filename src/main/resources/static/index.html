@@ -57,9 +57,9 @@
                         var clientPhone = $("<td>").text(data[i].clientPhone);
                         var addressStreet = $("<td>").addClass("t_data").text(data[i].address.street);
                         var actionCol = $("<td>");
-                        var showButton = $("<a>").attr("id", i).addClass("badge badge-info").text("show");
+                        var showButton = $("<a>").attr("id", data[i].id).addClass("badge badge-info").text("show");
                         showButton.click(function(){
-                            window.location = "http://localhost:8080/report.html?id=" + (parseInt(this.id)+1);
+                            window.location = "http://localhost:8080/report.html?id=" + this.id;
                         });
                         tbr.append(index);
                         tbr.append(clientName);
