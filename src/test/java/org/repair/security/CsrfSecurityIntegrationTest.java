@@ -54,6 +54,16 @@ public class CsrfSecurityIntegrationTest {
     }
 
     @Test
+    @WithUserDetails("andriy")
+    public void givenUserWithNoCSRF_WhenAddProject_ThenForbidden() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/project")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createProject())
+        ).andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
     @WithUserDetails("vova")
     public void givenUserWhenGetPrincipalThenReturnRightName() throws Exception {
         mockMvc.perform(
