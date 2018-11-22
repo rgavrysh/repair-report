@@ -27,7 +27,7 @@ public class PrintReportTest {
     }
 
     @Test
-    public void filesClassTest() {
+    public void givenProject_whenPrintReport_thenReportDocumentGenerated() {
         ReportGenerator reportGenerator = new PoiGenerator();
         try {
             reportGenerator.generateReport(project, reportName);
