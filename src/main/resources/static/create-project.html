@@ -15,7 +15,7 @@
         $(document).ready(function(){
             $.ajax({
                 type: "GET",
-                url: "http://localhost:8080/principal",
+                url: "/principal",
                 }).done(function(data, status){
                     $("#welcome-name").text(data);
                 }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -41,7 +41,7 @@
                 console.log(obj);
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:8080/project",
+                    url: "/project",
                     dataType: "json",
                     data: JSON.stringify(obj),
                     contentType: "application/json",

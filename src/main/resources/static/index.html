@@ -22,7 +22,7 @@
         $(document).ready(function(){
             $.ajax({
                 type: "GET",
-                url: "http://localhost:8080/principal",
+                url: "/principal",
                 }).done(function(data, status){
                     $("#welcome-name").text(data);
                 }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -33,7 +33,7 @@
             $("#result_table").click(function(){
                 $.ajax({
                     type: "GET",
-                    url: "http://localhost:8080/projects",
+                    url: "/projects",
                 }).done(function(data, status){
                     var response = data;
                     console.log(data);
@@ -64,7 +64,7 @@
                         var actionCol = $("<td>");
                         var showButton = $("<a>").attr("id", data[i].id).addClass("badge badge-info").text("show");
                         showButton.click(function(){
-                            window.location = "http://localhost:8080/report.html?id=" + this.id;
+                            window.location = "/report.html?id=" + this.id;
                         });
                         tbr.append(index);
                         tbr.append(clientName);
@@ -82,7 +82,7 @@
             });
 
             $("#create_project").click(function(){
-                window.location = "http://localhost:8080/create-project.html";
+                window.location = "/create-project.html";
             });
 
             $("#welcome-name").click(function(){

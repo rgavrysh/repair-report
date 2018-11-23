@@ -26,7 +26,7 @@
             var csrfToken;
             $.ajax({
                 type: "GET",
-                url: "http://localhost:8080/principal",
+                url: "/principal",
                 }).done(function(data, status, jqXHR){
                     csrfToken = jqXHR.getResponseHeader("X-CSRF-TOKEN");
                     $("#welcome-name").text(data);
@@ -36,7 +36,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "http://localhost:8080/project/"+projectId,
+                url: "/project/"+projectId,
             }).done(function(data, status, jqXHR){
                 console.log(data);
                 $("#clientname").val(data.clientName);
@@ -52,7 +52,7 @@
                 $("#slopes").val(data.slopes);
                 var download = $('<button>').attr('id', 'gen-repo').attr('class', 'btn btn-success').text('Generate Report');
                 download.click(function(){
-                    window.location.href = "http://localhost:8080/download/"+projectId;
+                    window.location.href = "/download/"+projectId;
                 });
 
                 $('#prj-gen').append(download);
@@ -104,7 +104,7 @@
                 $('.dropdown-item').remove();
                 $.ajax({
                     type: "GET",
-                    url: "http://localhost:8080/tasks/descriptions",
+                    url: "/tasks/descriptions",
                     contentType: "application/json",
                 }).done(function(data, status){
                     console.log(status);
@@ -133,7 +133,7 @@
                 var newTask = {"shortDescription":$('#task-desc-input').val(), "tariff": $('#tariff').val(), "qty": $('#qty').val()};
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:8080/task?id="+projectId,
+                    url: "/task?id="+projectId,
                     dataType: "json",
                     data: JSON.stringify(newTask),
                     contentType: "application/json",
@@ -164,7 +164,7 @@
                     console.log(obj);
                     $.ajax({
                         type: "PUT",
-                        url: "http://localhost:8080/project/" + projectId,
+                        url: "/project/" + projectId,
                         dataType: "json",
                         data: JSON.stringify(obj),
                         contentType: "application/json",
