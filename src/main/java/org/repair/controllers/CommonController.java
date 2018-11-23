@@ -1,5 +1,6 @@
 package org.repair.controllers;
 
+import org.apache.commons.codec.EncoderException;
 import org.repair.dao.ProjectRepository;
 import org.repair.dao.ProjectTasksRepository;
 import org.repair.dao.TaskRepository;
@@ -74,9 +75,15 @@ public class CommonController {
 
     @GetMapping(value = "/project/{id}")
     public Project getProjectById(@PathVariable("id") int id) {
-        //todo: check authorization
         Optional<Project> project = projectRepository.findById(Long.valueOf(id));
         return project.orElseThrow(EntityNotFoundException::new);
+    }
+
+    @PutMapping(value = "/project/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Project updateProject(@PathVariable("id") final int id, @RequestBody final ProjectDTO projectDTO) {
+        Optional<Project> project = projectRepository.findById(Long.valueOf(id));
+        Project updated = project.orElseThrow(EntityNotFoundException::new).update(projectDTO);
+        return projectRepository.save(updated);
     }
 
     @GetMapping(value = "/download/{id}")

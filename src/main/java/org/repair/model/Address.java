@@ -18,7 +18,7 @@ public class Address implements Serializable {
     private String street;
     @Column(name = "STREET_NUMBER", length = 7)
     private String streetNumber;
-    private Integer apartment;
+    private String apartment;
     @Column(length = 7)
     private String postalCode;
 
@@ -26,10 +26,10 @@ public class Address implements Serializable {
     }
 
     public Address(String street, String streetNumber) {
-        this("", street, streetNumber, 0, "");
+        this("", street, streetNumber, "", "");
     }
 
-    private Address(String city, String street, String streetNumber, Integer apartment, String postalCode) {
+    private Address(String city, String street, String streetNumber, String apartment, String postalCode) {
         this.city = city;
         this.street = street;
         this.streetNumber = streetNumber;
@@ -61,11 +61,11 @@ public class Address implements Serializable {
         this.streetNumber = streetNumber;
     }
 
-    public Integer getApartment() {
+    public String getApartment() {
         return apartment;
     }
 
-    public void setApartment(Integer apartment) {
+    public void setApartment(String apartment) {
         this.apartment = apartment;
     }
 

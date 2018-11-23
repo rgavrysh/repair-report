@@ -3,6 +3,7 @@ package org.repair.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.collections4.map.HashedMap;
+import org.repair.dto.ProjectDTO;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -158,5 +159,21 @@ public class Project implements Serializable {
     public boolean addCustomJobTask(JobTask jobTask, Double quantity) {
         this.tasks.put(jobTask, 100);
         return true;
+    }
+
+    public Project update(ProjectDTO projectDTO) {
+        setClientName(projectDTO.getClientName());
+        setClientPhone(projectDTO.getClientPhone());
+        Address address = getAddress();
+        address.setCity(projectDTO.getCity());
+        address.setPostalCode(projectDTO.getPostal());
+        address.setStreet(projectDTO.getStreet());
+        address.setStreetNumber(projectDTO.getStreetNumber());
+        address.setApartment(projectDTO.getApartment());
+        setWalls(projectDTO.getWalls());
+        setFloor(projectDTO.getFloor());
+        setCeiling(projectDTO.getCeiling());
+        setSlopes(projectDTO.getSlopes());
+        return this;
     }
 }

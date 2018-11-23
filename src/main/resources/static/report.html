@@ -20,29 +20,19 @@
     <script>
         $(document).ready(function(){
             var url = new URL(window.location.href);
-            var projectId = url.search.split('=')[1];
+            let projectId = url.search.split('=')[1];
             $('#prj_report').text('Report ' + projectId);
 
+            var csrfToken;
             $.ajax({
                 type: "GET",
                 url: "http://localhost:8080/principal",
-                }).done(function(data, status){
+                }).done(function(data, status, jqXHR){
+                    csrfToken = jqXHR.getResponseHeader("X-CSRF-TOKEN");
                     $("#welcome-name").text(data);
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log(errorThrown);
             });
-
-            var csrfToken;
-            $.ajax({
-              type: 'GET',
-              url: '/create-project.html'
-            }).done(function (data, textStatus, jqXHR) {
-              csrfToken = jqXHR.getResponseHeader('X-CSRF-TOKEN');
-                console.log(csrfToken);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-              console.log(errorThrown);
-            });
-
 
             $.ajax({
                 type: "GET",
@@ -56,6 +46,10 @@
                 $("#apartment").val(data.address.apartment);
                 $("#city").val(data.address.city);
                 $("#postal").val(data.address.postalCode);
+                $("#walls").val(data.walls);
+                $("#ceilings").val(data.ceiling);
+                $("#floors").val(data.floor);
+                $("#slopes").val(data.slopes);
                 var download = $('<button>').attr('id', 'gen-repo').attr('class', 'btn btn-success').text('Generate Report');
                 download.click(function(){
                     window.location.href = "http://localhost:8080/download/"+projectId;
@@ -159,6 +153,34 @@
             $("#welcome-name").click(function(){
                 window.location.href = "/logout"
             });
+
+            // Edit project metadata
+            $("#edit-btn").click(function(){
+                if ($("#edit-btn span").text() == "Edit"){
+                    $("#edit-btn span").text("Save");
+                    $("#project-info").removeAttr("disabled");
+                } else {
+                    var obj = {"clientName":$('#clientname').val(), "clientPhone": $('#clientphone').val(), "street": $('#street').val(), "streetNumber": $('#streetnumber').val(), "apartment": $('#apartment').val(), "city": $('#city').val(), "postal": $('#postal').val(), "walls": $('#walls').val(), "floor": $('#floors').val(), "ceiling": $('#ceilings').val(), "slopes": $('#slopes').val()};
+                    console.log(obj);
+                    $.ajax({
+                        type: "PUT",
+                        url: "http://localhost:8080/project/" + projectId,
+                        dataType: "json",
+                        data: JSON.stringify(obj),
+                        contentType: "application/json",
+                        beforeSend: function(request) {
+                            request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                        }
+                    }).done(function(data, status, jqXHR){
+                        console.log(status);
+                        console.log(data);
+                    }).fail(function(jqXHR, status, error){
+                        console.log(error);
+                    });
+                    $("#edit-btn span").text("Edit");
+                    $("#project-info").attr("disabled", "");
+                }
+            });
 });
 
 
@@ -174,7 +196,7 @@
 <div id="prj-gen"></div>
 <div class="container">
     <form>
-        <fieldset disabled>
+        <fieldset id="project-info" disabled>
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="clientname">Client Name</label>
@@ -232,8 +254,10 @@
                 </div>
             </div>
         </fieldset>
-        <button id="edit-btn" class="btn btn-primary">edit</button>
     </form>
+    <button id="edit-btn" class="btn btn-primary">
+        <span class="edit-button-text">Edit</span>
+    </button>
     <p/>
     <form id="add-task-form">
         <div class="form-row">
