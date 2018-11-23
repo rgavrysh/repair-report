@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@RestController
+@RestController(value = "/api")
 public class CommonController {
     private static final Logger LOG = Logger.getLogger("CONTROLLER");
 
@@ -70,6 +70,13 @@ public class CommonController {
     public List<Project> getProjects(@AuthenticationPrincipal UserDetails principal) {
         Worker worker = workerRepository.findOneByName(principal.getUsername());
         return projectRepository.findByExecutor(worker);
+    }
+
+    @GetMapping(value = "/project/{id}")
+    public Project getProjectById(@PathVariable("id") int id) {
+        //todo: check authorization
+        Optional<Project> project = projectRepository.findById(Long.valueOf(id));
+        return project.orElseThrow(EntityNotFoundException::new);
     }
 
     @GetMapping(value = "/download/{id}")
