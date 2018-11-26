@@ -4,5 +4,6 @@ target/
 build/
 out/
 logs/
+reports/
 .DS_Store
 .gradle/
