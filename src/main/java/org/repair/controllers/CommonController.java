@@ -1,18 +1,16 @@
 package org.repair.controllers;
 
-import org.apache.commons.codec.EncoderException;
 import org.repair.dao.ProjectRepository;
 import org.repair.dao.ProjectTasksRepository;
 import org.repair.dao.TaskRepository;
 import org.repair.dao.WorkerRepository;
 import org.repair.dto.ProjectDTO;
 import org.repair.dto.TaskDTO;
-import org.repair.model.JobTask;
-import org.repair.model.Project;
-import org.repair.model.ProjectTasks;
-import org.repair.model.Worker;
+import org.repair.model.*;
 import org.repair.report.services.generator.ReportGenerator;
 import org.repair.services.LoginDetailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -27,16 +25,17 @@ import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController(value = "/api")
 public class CommonController {
-    private static final Logger LOG = Logger.getLogger("CONTROLLER");
+    private static final Logger LOG = LoggerFactory.getLogger("CONTROLLER");
+    private static final String REPORTS_FOLDER_PREFIX = "./reports/";
 
     @Autowired
     private WorkerRepository workerRepository;
@@ -89,12 +88,12 @@ public class CommonController {
     @GetMapping(value = "/download/{id}")
     public FileSystemResource downloadFile(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
         Optional<Project> project = projectRepository.findById(Long.valueOf(id));
-        String fileName = null;
+        String fileName;
         try {
-            //todo: check for file existence before generating new report
-            fileName = reportGenerator.generateReport(project.orElseThrow(EntityNotFoundException::new), String.valueOf(id));
+            fileName = reportGenerator.generateReport(project.orElseThrow(EntityNotFoundException::new),
+                    REPORTS_FOLDER_PREFIX + String.valueOf(id) + "/" + Instant.now().toString());
         } catch (FileNotFoundException e) {
-            LOG.severe("File could not be found.");
+            LOG.error("File could not be found.");
             throw new FileNotFoundException();
         }
         File file = new File(fileName);
@@ -121,12 +120,19 @@ public class CommonController {
     @ResponseStatus(HttpStatus.CREATED)
     public JobTask addNewTaskToProject(@PathParam("project") final int id, @RequestBody TaskDTO taskDTO) {
         JobTask jobTask = new JobTask(taskDTO.getShortDescription(), taskDTO.getTariff());
-        //todo: duplicate short description if description is null
+        //duplicate short description to description
         jobTask.setDescription(taskDTO.getShortDescription());
         JobTask saved = taskRepository.save(jobTask);
         ProjectTasks projectTasks = new ProjectTasks(Long.valueOf(id), saved.getId());
         projectTasks.setQty(taskDTO.getQty());
         projectTasksRepository.save(projectTasks);
         return saved;
+    }
+
+    @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteTask(@PathVariable("projectId") final int projectId, @PathVariable("taskId") final int taskId) {
+        ProjectTasksId projectTasksId = new ProjectTasksId(Long.valueOf(projectId), Long.valueOf(taskId));
+        projectTasksRepository.deleteById(projectTasksId);
     }
 }

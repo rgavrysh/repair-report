@@ -62,14 +62,16 @@
                 var head = $("<thead>").addClass("thead-dark");
                 var tr = $("<tr>");
                 var hindex = $("<th>").addClass("t_header_column").attr("scope", "col").text("#");
-                var hname = $("<th>").addClass("t_header_column").attr("scope", "col").text("Description");
-                var hphone = $("<th>").addClass("t_header_column").attr("scope", "col").text("Tariff");
-                var haddress = $("<th>").addClass("t_header_column").attr("scope", "col").text("Qty");
-                var hbutton = $("<th>").addClass("t_header_column").attr("scope", "col").text("Total");
+                var hdescription = $("<th>").addClass("t_header_column").attr("scope", "col").text("Description");
+                var htariff = $("<th>").addClass("t_header_column").attr("scope", "col").text("Tariff");
+                var hqty = $("<th>").addClass("t_header_column").attr("scope", "col").text("Qty");
+                var htotal = $("<th>").addClass("t_header_column").attr("scope", "col").text("Total");
+                var hbutton = $("<th>").addClass("t_header_column").attr("scope", "col");
                 tr.append(hindex);
-                tr.append(hname);
-                tr.append(hphone);
-                tr.append(haddress);
+                tr.append(hdescription);
+                tr.append(htariff);
+                tr.append(hqty);
+                tr.append(htotal);
                 tr.append(hbutton);
                 head.append(tr);
                 table.append(head);
@@ -85,11 +87,29 @@
                     var taskTariff = $("<td>").addClass("t_data").text(asObject.tariff);
                     var taskQty = $("<td>").addClass("t_data").text(data.tasks[key]);
                     var total = $("<td>").addClass("t_data").text(asObject.tariff*data.tasks[key]);
+                    var deleteButton = $("<a>").attr("href", "#").addClass("badge badge-pill badge-danger").text("remove");
+                        deleteButton.click(function(){
+                            console.log("Remove job from current project. " + asObject.id);
+                            $.ajax({
+                                type: "DELETE",
+                                url: "/project/" + data.id + "/task/" + asObject.id,
+                                beforeSend: function(request) {
+                                    request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                                }
+                            }).done(function(data, status, jqXHR){
+                                console.log(status);
+                                console.log("Reload page to refresh task-table");
+                                location.reload();
+                            }).fail(function(jqXHR, status, error){
+                                console.log(error);
+                            });
+                        });
                     tbr.append(index);
                     tbr.append(taskDescription);
                     tbr.append(taskTariff);
                     tbr.append(taskQty);
                     tbr.append(total);
+                    tbr.append(deleteButton);
                     tbody.append(tbr);
                 });
                 table.append(tbody);

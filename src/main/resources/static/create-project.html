@@ -13,31 +13,22 @@
             crossorigin="anonymous"></script>
     <script>
         $(document).ready(function(){
+            var csrfToken;
             $.ajax({
                 type: "GET",
                 url: "/principal",
-                }).done(function(data, status){
+                }).done(function(data, status, jqXHR){
                     $("#welcome-name").text(data);
+                    csrfToken = jqXHR.getResponseHeader("X-CSRF-TOKEN");
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log(errorThrown);
             });
 
-            var csrfToken;
-            $.ajax({
-              type: 'GET',
-              url: '/create-project.html'
-            }).done(function (data, textStatus, jqXHR) {
-              csrfToken = jqXHR.getResponseHeader('X-CSRF-TOKEN');
-                console.log(csrfToken);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-              console.log(errorThrown);
-            });
-
-            $('#add-btn').click(function(){
-                var obj = {"clientName":$('#clientname').val(), "clientPhone": $('#clientphone').val(), "street": $('#street').val(),
-                "streetNumber": $('#streetnumber').val()};
-                console.log(header);
-                console.log(token);
+            $("#add-btn").click(function(){
+                var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "street": $("#street").val(),
+                "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "city": $("#city").val(),
+                "postal": $("#postal").val(), "walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(),
+                "slopes": $("slopes").val()};
                 console.log(obj);
                 $.ajax({
                     type: "POST",
@@ -46,12 +37,12 @@
                     data: JSON.stringify(obj),
                     contentType: "application/json",
                     beforeSend: function(request) {
-                        request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                        request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                     }
                 }).done(function(data, status, jqXHR){
                     console.log(status);
                     console.log(data);
-                    window.location = '/';
+                    window.location = "/";
                 }).fail(function(jqXHR, status, error){
                     console.log(error);
                 });
