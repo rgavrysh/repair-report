@@ -70,11 +70,12 @@ public class JobTask implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         JobTask jobTask = (JobTask) o;
         return Objects.equals(id, jobTask.id) &&
-                Objects.equals(shortDescription, jobTask.shortDescription);
+                Objects.equals(shortDescription, jobTask.shortDescription) &&
+                Objects.equals(tariff, jobTask.tariff);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, shortDescription);
+        return Objects.hash(id, shortDescription, tariff);
     }
 }

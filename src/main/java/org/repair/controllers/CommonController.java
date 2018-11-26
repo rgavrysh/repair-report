@@ -119,14 +119,24 @@ public class CommonController {
     @PostMapping(value = "/task")
     @ResponseStatus(HttpStatus.CREATED)
     public JobTask addNewTaskToProject(@PathParam("project") final int id, @RequestBody TaskDTO taskDTO) {
+        Optional<JobTask> repositoryOneByShortDescriptionAndTariff =
+                taskRepository.findOneByShortDescriptionAndTariff(taskDTO.getShortDescription(), taskDTO.getTariff());
+        if (repositoryOneByShortDescriptionAndTariff.isPresent()) {
+            bindTaskToProject(Long.valueOf(id), repositoryOneByShortDescriptionAndTariff.get().getId(), taskDTO.getQty());
+            return repositoryOneByShortDescriptionAndTariff.get();
+        }
         JobTask jobTask = new JobTask(taskDTO.getShortDescription(), taskDTO.getTariff());
         //duplicate short description to description
         jobTask.setDescription(taskDTO.getShortDescription());
         JobTask saved = taskRepository.save(jobTask);
-        ProjectTasks projectTasks = new ProjectTasks(Long.valueOf(id), saved.getId());
-        projectTasks.setQty(taskDTO.getQty());
-        projectTasksRepository.save(projectTasks);
+        bindTaskToProject(Long.valueOf(id), saved.getId(), taskDTO.getQty());
         return saved;
+    }
+
+    private ProjectTasks bindTaskToProject(Long projectId, Long taskId, Double qty) {
+        ProjectTasks projectTasks = new ProjectTasks(projectId, taskId);
+        projectTasks.setQty(qty);
+        return projectTasksRepository.save(projectTasks);
     }
 
     @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
