@@ -79,6 +79,7 @@ public class CommonController {
     }
 
     @PutMapping(value = "/project/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Project updateProject(@PathVariable("id") final int id, @RequestBody final Project modified) {
         Optional<Project> project = projectRepository.findById(Long.valueOf(id));
         Project updated = project.orElseThrow(EntityNotFoundException::new).update(modified);
@@ -139,7 +140,7 @@ public class CommonController {
     }
 
     @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable("projectId") final int projectId, @PathVariable("taskId") final int taskId) {
         ProjectTasksId projectTasksId = new ProjectTasksId(Long.valueOf(projectId), Long.valueOf(taskId));
         projectTasksRepository.deleteById(projectTasksId);

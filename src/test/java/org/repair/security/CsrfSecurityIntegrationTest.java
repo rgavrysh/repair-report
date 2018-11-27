@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.repair.PrintReport;
+import org.repair.controllers.CommonController;
 import org.repair.model.Address;
 import org.repair.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class CsrfSecurityIntegrationTest {
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext context;
+    @Autowired
+    private CommonController controller;
 
     @Before
     public void setup() {
@@ -62,6 +65,11 @@ public class CsrfSecurityIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createProject())
         ).andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    public void givenNullWhenGetPrincipalThenReturnDefault() throws Exception {
+        Assert.assertEquals("anonymous", controller.getPrincipal(null));
     }
 
     @Test
