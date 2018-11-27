@@ -3,6 +3,7 @@ package org.repair.report;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.repair.model.Address;
 import org.repair.model.JobTask;
 import org.repair.model.Project;
 import org.repair.report.services.generator.PoiGenerator;
@@ -20,8 +21,9 @@ public class PrintReportTest {
     @Before
     public void setup() {
         reportName = "./src/test/resources/wordPoiReport.docx";
-        project = new Project("Roman", "380979617254",
-                "Stryiska", "111");
+        // TODO: 27/11/2018 Give JSON as input
+        Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
+        project = new Project("Roman", "380979617254", address, 0.0, 0.0, 0.0, 0.0);
         project.addCustomJobTask(new JobTask("Wall Painting", 15.0), 100.0);
         project.addCustomJobTask(new JobTask("Bricks construction", 35.0), 60.0);
     }

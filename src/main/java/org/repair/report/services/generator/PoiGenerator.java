@@ -2,36 +2,23 @@ package org.repair.report.services.generator;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.repair.model.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PoiGenerator implements ReportGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PoiGenerator.class);
 
     @Override
     public String generateReport(Project project, String fileName) {
         final String colorBlack = "000000";
 
         AtomicInteger counter = new AtomicInteger(1);
-        if (!Paths.get(fileName).getParent().toFile().exists()) {
-            try {
-                Files.createDirectories(Paths.get(fileName).getParent());
-            } catch (IOException e) {
-                LOG.error(String.format("Could not create directories: %s", Paths.get(fileName).getParent()));
-            }
-        }
-        File file = new File(fileName);
+        File file = prepareFileForReport(fileName);
         try (XWPFDocument document = new XWPFDocument(); FileOutputStream report = new FileOutputStream(file)) {
 
             // Set header

@@ -4,7 +4,6 @@ import org.repair.dao.ProjectRepository;
 import org.repair.dao.ProjectTasksRepository;
 import org.repair.dao.TaskRepository;
 import org.repair.dao.WorkerRepository;
-import org.repair.dto.ProjectDTO;
 import org.repair.dto.TaskDTO;
 import org.repair.model.*;
 import org.repair.report.services.generator.ReportGenerator;
@@ -25,6 +24,7 @@ import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @RestController(value = "/api")
 public class CommonController {
     private static final Logger LOG = LoggerFactory.getLogger("CONTROLLER");
-    private static final String REPORTS_FOLDER_PREFIX = "./reports/";
+    private static final String REPORTS_FOLDER_PREFIX = "./reports";
 
     @Autowired
     private WorkerRepository workerRepository;
@@ -79,9 +79,9 @@ public class CommonController {
     }
 
     @PutMapping(value = "/project/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Project updateProject(@PathVariable("id") final int id, @RequestBody final ProjectDTO projectDTO) {
+    public Project updateProject(@PathVariable("id") final int id, @RequestBody final Project modified) {
         Optional<Project> project = projectRepository.findById(Long.valueOf(id));
-        Project updated = project.orElseThrow(EntityNotFoundException::new).update(projectDTO);
+        Project updated = project.orElseThrow(EntityNotFoundException::new).update(modified);
         return projectRepository.save(updated);
     }
 
@@ -91,7 +91,7 @@ public class CommonController {
         String fileName;
         try {
             fileName = reportGenerator.generateReport(project.orElseThrow(EntityNotFoundException::new),
-                    REPORTS_FOLDER_PREFIX + String.valueOf(id) + "/" + Instant.now().toString());
+                    Paths.get(REPORTS_FOLDER_PREFIX, String.valueOf(id), Instant.now().toString()).toString());
         } catch (FileNotFoundException e) {
             LOG.error("File could not be found.");
             throw new FileNotFoundException();
@@ -103,8 +103,7 @@ public class CommonController {
 
     @PostMapping(value = "/project", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Project createProject(@RequestBody ProjectDTO projectDTO, @AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
-        Project project = new Project(projectDTO.getClientName(), projectDTO.getClientPhone(), projectDTO.getStreet(), projectDTO.getStreetNumber());
+    public Project createProject(@RequestBody Project project, @AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
         Optional<Worker> executor = workerRepository.findById(principal.getId());
         project.setExecutor(executor.orElseThrow(EntityNotFoundException::new));
         return projectRepository.save(project);
@@ -113,7 +112,7 @@ public class CommonController {
     @GetMapping(value = "/tasks/descriptions")
     public Set<String> getTasksDescriptions() {
         List<JobTask> tasks = taskRepository.findAll();
-        return tasks.stream().map(jt -> jt.getShortDescription()).collect(Collectors.toSet());
+        return tasks.stream().map(JobTask::getShortDescription).collect(Collectors.toSet());
     }
 
     @PostMapping(value = "/task")

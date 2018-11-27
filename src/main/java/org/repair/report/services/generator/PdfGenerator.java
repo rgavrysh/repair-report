@@ -1,4 +1,3 @@
-/*
 package org.repair.report.services.generator;
 
 import com.itextpdf.text.*;
@@ -7,6 +6,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.repair.model.Project;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,13 +14,15 @@ import java.util.stream.Stream;
 
 public class PdfGenerator implements ReportGenerator {
     @Override
-    public void generateReport(Project project, String fileName) throws FileNotFoundException {
+    public String generateReport(Project project, String fileName) throws FileNotFoundException {
         AtomicInteger counter = new AtomicInteger(1);
         Document document = new Document();
+        File file = prepareFileForReport(fileName);
         try {
-            PdfWriter.getInstance(document, new FileOutputStream("firstReport.pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream(file));
         } catch (DocumentException | FileNotFoundException e) {
-            throw new RuntimeException("Failed to generate pdf");
+            LOG.error("Failed to generate pdf.");
+            return null;
         }
 
         document.open();
@@ -62,10 +64,11 @@ public class PdfGenerator implements ReportGenerator {
             document.add(chunk);
             document.add(jobTable);
         } catch (DocumentException e) {
-            throw new RuntimeException("Failed to add element to pdf document");
+            LOG.error("Failed to add element to pdf document.");
+            return null;
         }
 
         document.close();
+        return file.getAbsolutePath();
     }
 }
-*/

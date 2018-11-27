@@ -25,11 +25,7 @@ public class Address implements Serializable {
     public Address() {
     }
 
-    public Address(String street, String streetNumber) {
-        this("", street, streetNumber, "", "");
-    }
-
-    private Address(String city, String street, String streetNumber, String apartment, String postalCode) {
+    public Address(String city, String street, String streetNumber, String apartment, String postalCode) {
         this.city = city;
         this.street = street;
         this.streetNumber = streetNumber;

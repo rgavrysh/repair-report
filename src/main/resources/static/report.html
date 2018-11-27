@@ -20,8 +20,8 @@
     <script>
         $(document).ready(function(){
             var url = new URL(window.location.href);
-            let projectId = url.search.split('=')[1];
-            $('#prj_report').text('Report ' + projectId);
+            let projectId = url.search.split("=")[1];
+            $("#prj_report").text("Report " + projectId);
 
             var csrfToken;
             $.ajax({
@@ -50,12 +50,12 @@
                 $("#ceilings").val(data.ceiling);
                 $("#floors").val(data.floor);
                 $("#slopes").val(data.slopes);
-                var download = $('<button>').attr('id', 'gen-repo').attr('class', 'btn btn-success').text('Generate Report');
+                var download = $("<button>").attr("id", "gen-repo").attr("class", "btn btn-success").text("Generate Report");
                 download.click(function(){
                     window.location.href = "/download/"+projectId;
                 });
 
-                $('#prj-gen').append(download);
+                $("#prj-gen").append(download);
 
 // header
                 var table = $("<table>").addClass("table");
@@ -94,7 +94,7 @@
                                 type: "DELETE",
                                 url: "/project/" + data.id + "/task/" + asObject.id,
                                 beforeSend: function(request) {
-                                    request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                                    request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                                 }
                             }).done(function(data, status, jqXHR){
                                 console.log(status);
@@ -119,9 +119,9 @@
             });
 
 //add new tasks
-            $('#dropdown-btn').click(function(){
-                console.log('remove all links before');
-                $('.dropdown-item').remove();
+            $("#dropdown-btn").click(function(){
+                console.log("remove all links before");
+                $(".dropdown-item").remove();
                 $.ajax({
                     type: "GET",
                     url: "/tasks/descriptions",
@@ -130,11 +130,11 @@
                     console.log(status);
                     console.log(data);
                     data.forEach(function(item){
-                        var tsk = $('<a>').attr('class', 'dropdown-item').attr('href', '#').text(item);
+                        var tsk = $("<a>").attr("class", "dropdown-item").attr("href", "#").text(item);
                         tsk.click((function(){
-                            $('.task-desc').val(this.text);
+                            $(".task-desc").val(this.text);
                         }));
-                        $('.dropdown-menu').append(tsk);
+                        $(".dropdown-menu").append(tsk);
                     })
 
                 }).fail(function(status, error){
@@ -142,15 +142,15 @@
                 });
             });
 
-            $('#add-task-btn').click(function(){
-                console.log('add new task to project');
+            $("#add-task-btn").click(function(){
+                console.log("add new task to project");
                 if ($("#task-desc-input").val().length == 0 ||
                     $("#tariff").val() < 0.1 ||
                     $("#qty").val() < 0){
                     window.alert("Fill in fields.");
                     return false;
                 }
-                var newTask = {"shortDescription":$('#task-desc-input').val(), "tariff": $('#tariff').val(), "qty": $('#qty').val()};
+                var newTask = {"shortDescription":$("#task-desc-input").val(), "tariff": $("#tariff").val(), "qty": $("#qty").val()};
                 $.ajax({
                     type: "POST",
                     url: "/task?id="+projectId,
@@ -158,12 +158,12 @@
                     data: JSON.stringify(newTask),
                     contentType: "application/json",
                     beforeSend: function(request) {
-                        request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                        request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                     }
                 }).done(function(data, status, jqXHR){
                     console.log(status);
                     console.log(data);
-                    console.log('reload page to refresh task-table');
+                    console.log("reload page to refresh task-table");
                     location.reload();
                 }).fail(function(jqXHR, status, error){
                     console.log(error);
@@ -180,7 +180,7 @@
                     $("#edit-btn span").text("Save");
                     $("#project-info").removeAttr("disabled");
                 } else {
-                    var obj = {"clientName":$('#clientname').val(), "clientPhone": $('#clientphone').val(), "street": $('#street').val(), "streetNumber": $('#streetnumber').val(), "apartment": $('#apartment').val(), "city": $('#city').val(), "postal": $('#postal').val(), "walls": $('#walls').val(), "floor": $('#floors').val(), "ceiling": $('#ceilings').val(), "slopes": $('#slopes').val()};
+                    var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "address": {"city": $("#city").val(), "street": $("#street").val(), "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "postalCode": $("#postal").val()}, "walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(), "slopes": $("#slopes").val()};
                     console.log(obj);
                     $.ajax({
                         type: "PUT",
@@ -189,7 +189,7 @@
                         data: JSON.stringify(obj),
                         contentType: "application/json",
                         beforeSend: function(request) {
-                            request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                            request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                         }
                     }).done(function(data, status, jqXHR){
                         console.log(status);

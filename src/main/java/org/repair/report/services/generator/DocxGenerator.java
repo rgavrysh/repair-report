@@ -1,4 +1,3 @@
-/*
 package org.repair.report.services.generator;
 
 import org.repair.model.Project;
@@ -9,16 +8,18 @@ import java.io.*;
 
 public class DocxGenerator implements ReportGenerator {
     @Override
-    public void generateReport(Project project, String fileName) throws FileNotFoundException {
+    public String generateReport(Project project, String fileName) throws FileNotFoundException {
         DocxStamper<Object> stamper = new DocxStamper<>(new DocxStamperConfiguration());
+        File file = prepareFileForReport(fileName);
         try (FileInputStream template = new FileInputStream(new File("reportTemplate.docx"))) {
-            FileOutputStream report = new FileOutputStream(new File(fileName));
+            FileOutputStream report = new FileOutputStream(file);
 
             stamper.stamp(template, project, report);
             report.close();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to generate report");
+            LOG.error("Failed to generate report.");
+            return null;
         }
+        return file.getAbsolutePath();
     }
 }
-*/

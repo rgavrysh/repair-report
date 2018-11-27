@@ -36,13 +36,12 @@ public class LoginDetailService implements UserDetailsService {
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
             //todo: decompose role to separate table
-            GrantedAuthority grantedAuthority = (GrantedAuthority) () -> worker.getRole();
+            GrantedAuthority grantedAuthority = worker::getRole;
             return Collections.singleton(grantedAuthority);
         }
 
         @Override
         public String getPassword() {
-            //todo: use BCrypt to encode password
             return worker.getPassword();
         }
 
@@ -78,6 +77,20 @@ public class LoginDetailService implements UserDetailsService {
 
         public Worker getWorker() {
             return worker;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            WorkerDetail that = (WorkerDetail) o;
+            return Objects.equals(worker, that.worker);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), worker);
         }
     }
 }

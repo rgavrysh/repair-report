@@ -1,9 +1,9 @@
 package org.repair.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.collections4.map.HashedMap;
-import org.repair.dto.ProjectDTO;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -41,17 +41,13 @@ public class Project implements Serializable {
     @MapKeyJoinColumn(name = "TASK_ID")
     @Column(name = "QTY")
     @JsonSerialize(keyUsing = TasksSerializer.class)
-    private Map<JobTask, Integer> tasks = new HashedMap<>();
+    @JsonDeserialize(keyUsing = TasksDeserializer.class)
+    private Map<JobTask, Double> tasks = new HashedMap<>();
 
     public Project() {
     }
 
-    public Project(String clientName, String clientPhone, String street, String streetNumber) {
-        this(clientName, clientPhone, new Address(street, streetNumber),
-                0.0, 0.0, 0.0, 0.0);
-    }
-
-    private Project(String clientName, String clientPhone, Address address, Double walls, Double floor, Double ceiling, Double slopes) {
+    public Project(String clientName, String clientPhone, Address address, Double walls, Double floor, Double ceiling, Double slopes) {
         this.clientName = clientName;
         this.clientPhone = clientPhone;
         this.address = address;
@@ -129,7 +125,7 @@ public class Project implements Serializable {
         this.slopes = slopes;
     }
 
-    public Map<JobTask, Integer> getTasks() {
+    public Map<JobTask, Double> getTasks() {
         return Collections.unmodifiableMap(this.tasks);
     }
 
@@ -157,23 +153,18 @@ public class Project implements Serializable {
     }
 
     public boolean addCustomJobTask(JobTask jobTask, Double quantity) {
-        this.tasks.put(jobTask, 100);
+        this.tasks.put(jobTask, quantity);
         return true;
     }
 
-    public Project update(ProjectDTO projectDTO) {
-        setClientName(projectDTO.getClientName());
-        setClientPhone(projectDTO.getClientPhone());
-        Address address = getAddress();
-        address.setCity(projectDTO.getCity());
-        address.setPostalCode(projectDTO.getPostal());
-        address.setStreet(projectDTO.getStreet());
-        address.setStreetNumber(projectDTO.getStreetNumber());
-        address.setApartment(projectDTO.getApartment());
-        setWalls(projectDTO.getWalls());
-        setFloor(projectDTO.getFloor());
-        setCeiling(projectDTO.getCeiling());
-        setSlopes(projectDTO.getSlopes());
+    public Project update(Project updated) {
+        setClientName(updated.getClientName());
+        setClientPhone(updated.getClientPhone());
+        setAddress(updated.getAddress());
+        setWalls(updated.getWalls());
+        setFloor(updated.getFloor());
+        setCeiling(updated.getCeiling());
+        setSlopes(updated.getSlopes());
         return this;
     }
 }

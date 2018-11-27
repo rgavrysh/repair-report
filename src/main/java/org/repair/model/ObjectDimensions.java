@@ -8,6 +8,7 @@ public class ObjectDimensions {
     private Double slopes;
 
     public ObjectDimensions() {
+        throw new UnsupportedOperationException("Should not be called until @Embeddable support.");
     }
 
     public Double getFloor() {

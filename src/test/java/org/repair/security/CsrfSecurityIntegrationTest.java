@@ -7,7 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.repair.PrintReport;
-import org.repair.dto.ProjectDTO;
+import org.repair.model.Address;
+import org.repair.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,7 +74,8 @@ public class CsrfSecurityIntegrationTest {
     }
 
     private String createProject() throws JsonProcessingException {
-        ProjectDTO projectDTO = new ProjectDTO("Test", "0000", "StreetTest", "0");
-        return new ObjectMapper().writeValueAsString(projectDTO);
+        Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
+        Project project = new Project("Roman", "380979617254", address, 0.0, 0.0, 0.0, 0.0);
+        return new ObjectMapper().writeValueAsString(project);
     }
 }
