@@ -1,19 +1,18 @@
 package org.repair.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity
-@Table(name = "PROJECT_TASKS")
-@IdClass(ProjectTasksId.class)
+//@Entity
+//@Table(name = "PROJECT_TASKS")
+//@IdClass(ProjectTasksId.class)
 public class ProjectTasks implements Serializable {
     private static final long serialVersionUID = 1l;
 
-    @Id
-    @Column(name = "PRJ_ID")
+//    @Id
+//    @Column(name = "PRJ_ID")
     private Long prjId;
-    @Id
-    @Column(name = "TASK_ID")
+//    @Id
+//    @Column(name = "TASK_ID")
     private Long taskId;
     private Double qty;
 

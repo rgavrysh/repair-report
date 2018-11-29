@@ -51,7 +51,7 @@ public class LoginDetailService implements UserDetailsService {
         }
 
         @Override
-        public Long getId() {
+        public String getId() {
             return worker.getId();
         }
 

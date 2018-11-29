@@ -1,30 +1,25 @@
 package org.repair.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-@Entity
 public class Worker implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(length = 20)
+    private String id;
     private String name;
     @JsonIgnore
-    @Column
     private String password;
     private String role;
-    @OneToMany(targetEntity = Project.class, mappedBy = "executor")
     @JsonIgnore
-    private Set<Project> projects;
+    @DBRef(db = "report")
+    private List<Project> projects;
 
     public Worker() {
     }
@@ -51,7 +46,7 @@ public class Worker implements Serializable {
         return password;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -59,8 +54,8 @@ public class Worker implements Serializable {
         this.role = role;
     }
 
-    public Set<Project> getProjects() {
-        return Collections.unmodifiableSet(projects);
+    public List<Project> getProjects() {
+        return Collections.unmodifiableList(projects);
     }
 
     @Override

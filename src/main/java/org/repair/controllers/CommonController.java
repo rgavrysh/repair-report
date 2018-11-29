@@ -18,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.File;
@@ -68,30 +67,29 @@ public class CommonController {
 
     @GetMapping(value = "/projects")
     public List<Project> getProjects(@AuthenticationPrincipal UserDetails principal) {
-        Worker worker = workerRepository.findOneByName(principal.getUsername());
-        return projectRepository.findByExecutor(worker);
+        return projectRepository.findByWorkerId(((LoginDetailService.WorkerDetail) principal).getId());
     }
 
     @GetMapping(value = "/project/{id}")
-    public Project getProjectById(@PathVariable("id") int id) {
-        Optional<Project> project = projectRepository.findById(Long.valueOf(id));
-        return project.orElseThrow(EntityNotFoundException::new);
+    public Project getProjectById(@PathVariable("id") String id) {
+        Optional<Project> project = projectRepository.findById(id);
+        return project.orElseThrow(RuntimeException::new);
     }
 
     @PutMapping(value = "/project/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Project updateProject(@PathVariable("id") final int id, @RequestBody final Project modified) {
-        Optional<Project> project = projectRepository.findById(Long.valueOf(id));
-        Project updated = project.orElseThrow(EntityNotFoundException::new).update(modified);
+    public Project updateProject(@PathVariable("id") final String id, @RequestBody final Project modified) {
+        Optional<Project> project = projectRepository.findById(id);
+        Project updated = project.orElseThrow(RuntimeException::new).update(modified);
         return projectRepository.save(updated);
     }
 
     @GetMapping(value = "/download/{id}")
-    public FileSystemResource downloadFile(@PathVariable("id") int id, HttpServletResponse response) throws IOException {
-        Optional<Project> project = projectRepository.findById(Long.valueOf(id));
+    public FileSystemResource downloadFile(@PathVariable("id") String id, HttpServletResponse response) throws IOException {
+        Optional<Project> project = projectRepository.findById(id);
         String fileName;
         try {
-            fileName = reportGenerator.generateReport(project.orElseThrow(EntityNotFoundException::new),
+            fileName = reportGenerator.generateReport(project.orElseThrow(RuntimeException::new),
                     Paths.get(REPORTS_FOLDER_PREFIX, String.valueOf(id), Instant.now().toString()).toString());
         } catch (FileNotFoundException e) {
             LOG.error("File could not be found.");
@@ -106,7 +104,7 @@ public class CommonController {
     @ResponseStatus(HttpStatus.CREATED)
     public Project createProject(@RequestBody Project project, @AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
         Optional<Worker> executor = workerRepository.findById(principal.getId());
-        project.setExecutor(executor.orElseThrow(EntityNotFoundException::new));
+        project.setWorkerId(executor.orElseThrow(RuntimeException::new).getId());
         return projectRepository.save(project);
     }
 
@@ -118,7 +116,7 @@ public class CommonController {
 
     @PostMapping(value = "/task")
     @ResponseStatus(HttpStatus.CREATED)
-    public JobTask addNewTaskToProject(@PathParam("project") final int id, @RequestBody TaskDTO taskDTO) {
+    public JobTask addNewTaskToProject(@PathParam("project") final String id, @RequestBody TaskDTO taskDTO) {
         Optional<JobTask> repositoryOneByShortDescriptionAndTariff =
                 taskRepository.findOneByShortDescriptionAndTariff(taskDTO.getShortDescription(), taskDTO.getTariff());
         if (repositoryOneByShortDescriptionAndTariff.isPresent()) {
@@ -141,7 +139,7 @@ public class CommonController {
 
     @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTask(@PathVariable("projectId") final int projectId, @PathVariable("taskId") final int taskId) {
+    public void deleteTask(@PathVariable("projectId") final String projectId, @PathVariable("taskId") final String taskId) {
         ProjectTasksId projectTasksId = new ProjectTasksId(Long.valueOf(projectId), Long.valueOf(taskId));
         projectTasksRepository.deleteById(projectTasksId);
     }

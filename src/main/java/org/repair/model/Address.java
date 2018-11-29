@@ -1,25 +1,17 @@
 package org.repair.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
 public class Address implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
     private String city;
-    @Column(nullable = false)
     private String street;
-    @Column(name = "STREET_NUMBER", length = 7)
     private String streetNumber;
     private String apartment;
-    @Column(length = 7)
     private String postalCode;
 
     public Address() {

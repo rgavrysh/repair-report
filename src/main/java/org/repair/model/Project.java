@@ -4,26 +4,19 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.collections4.map.HashedMap;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-@Entity
 public class Project implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //todo: use UUID (it is exposed within URL)
-    private Long id;
-    @Column(name = "CLIENT_NAME")
+    private String id;
     private String clientName;
-    @Column(name = "CLIENT_PHONE")
     private String clientPhone;
-    @OneToOne(targetEntity = Address.class, cascade = CascadeType.PERSIST)
     private Address address;
     //todo: use @Embedded object for dimensions
     private Double walls;
@@ -32,14 +25,8 @@ public class Project implements Serializable {
     private Double slopes;
 
     @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "WORKER_ID")
-    private Worker executor;
+    private String workerId;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "PROJECT_TASKS", joinColumns = @JoinColumn(name = "PRJ_ID"))
-    @MapKeyJoinColumn(name = "TASK_ID")
-    @Column(name = "QTY")
     @JsonSerialize(keyUsing = TasksSerializer.class)
     @JsonDeserialize(keyUsing = TasksDeserializer.class)
     private Map<JobTask, Double> tasks = new HashedMap<>();
@@ -57,16 +44,16 @@ public class Project implements Serializable {
         this.slopes = slopes;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public Worker getExecutor() {
-        return executor;
+    public String getWorkerId() {
+        return workerId;
     }
 
-    public void setExecutor(Worker executor) {
-        this.executor = executor;
+    public void setWorkerId(String workerId) {
+        this.workerId = workerId;
     }
 
     public String getClientName() {

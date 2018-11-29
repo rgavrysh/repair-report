@@ -1,20 +1,3 @@
-# DATA SOURCE
-spring:
-  datasource:
-    url: 'jdbc:h2:mem:testdb'
-    username: 'sa'
-    password:
-    data: 'classpath:data-dev.sql'
-  jpa:
-    database: 'h2'
-    show-sql: 'true'
-    hibernate:
-      ddl-auto: 'create-drop'
-  h2:
-    console:
-      enabled: 'true'
-      path: '/h2'
-
 # LOGGING
 logging:
   file: ./logs/app.log

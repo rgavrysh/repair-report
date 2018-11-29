@@ -1,20 +1,13 @@
 package org.repair.model;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
-@Table(name = "TASK")
 public class JobTask implements Serializable {
 
     private static final long serialVersionUID = 1l;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "SHORT_DESC")
     private String shortDescription;
-    @Column(name = "DESCR")
     private String description;
     private Double tariff;
 
