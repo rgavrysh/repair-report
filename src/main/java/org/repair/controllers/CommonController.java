@@ -116,20 +116,20 @@ public class CommonController {
         return tasks.stream().map(JobTask::getShortDescription).collect(Collectors.toSet());
     }
 
-    @PostMapping(value = "/task")
+    @PostMapping(value = "/project/{projectId}/task")
     @ResponseStatus(HttpStatus.CREATED)
-    public JobTask addNewTaskToProject(@PathParam("project") final int id, @RequestBody TaskDTO taskDTO) {
+    public JobTask addNewTaskToProject(@PathVariable("projectId") final int projectId, @RequestBody TaskDTO taskDTO) {
         Optional<JobTask> repositoryOneByShortDescriptionAndTariff =
                 taskRepository.findOneByShortDescriptionAndTariff(taskDTO.getShortDescription(), taskDTO.getTariff());
         if (repositoryOneByShortDescriptionAndTariff.isPresent()) {
-            bindTaskToProject(Long.valueOf(id), repositoryOneByShortDescriptionAndTariff.get().getId(), taskDTO.getQty());
+            bindTaskToProject(Long.valueOf(projectId), repositoryOneByShortDescriptionAndTariff.get().getId(), taskDTO.getQty());
             return repositoryOneByShortDescriptionAndTariff.get();
         }
         JobTask jobTask = new JobTask(taskDTO.getShortDescription(), taskDTO.getTariff());
         //duplicate short description to description
         jobTask.setDescription(taskDTO.getShortDescription());
         JobTask saved = taskRepository.save(jobTask);
-        bindTaskToProject(Long.valueOf(id), saved.getId(), taskDTO.getQty());
+        bindTaskToProject(Long.valueOf(projectId), saved.getId(), taskDTO.getQty());
         return saved;
     }
 

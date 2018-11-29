@@ -153,7 +153,7 @@
                 var newTask = {"shortDescription":$("#task-desc-input").val(), "tariff": $("#tariff").val(), "qty": $("#qty").val()};
                 $.ajax({
                     type: "POST",
-                    url: "/task?id="+projectId,
+                    url: "/project/" + projectId + "/task",
                     dataType: "json",
                     data: JSON.stringify(newTask),
                     contentType: "application/json",

@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.repair.PrintReport;
 import org.repair.model.Address;
+import org.repair.model.JobTask;
 import org.repair.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +31,8 @@ public class RestControllerTests {
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext context;
+    @Autowired
+    private ObjectMapper mapper;
 
     @Before
     public void setup() {
@@ -72,7 +75,7 @@ public class RestControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.put("/project/1")
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(project)))
+                .content(mapper.writeValueAsString(project)))
                 .andExpect(MockMvcResultMatchers.status().isAccepted())
                 .andExpect(MockMvcResultMatchers.jsonPath("address.street").value("Bandery"));
     }
@@ -95,5 +98,37 @@ public class RestControllerTests {
         Assert.assertTrue(response.getContentLength() > 0);
     }
 
+    @Test
+    @WithUserDetails("vova")
+    public void givenWorkerWhenAddTaskThenNewCreated() throws Exception {
+        JobTask testTask = new JobTask("Test desc", 10.0);
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/project/2/task")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(testTask))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isCreated())
+        .andExpect(MockMvcResultMatchers.jsonPath("description").value("Test desc"));
+    }
 
+    @Test
+    @WithUserDetails("vova")
+    public void givenWorkerWhenExistedTaskAddedThenProjectContains() throws Exception {
+        JobTask testTask = new JobTask("Test desc", 10.0);
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/project/2/task")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(testTask))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @Test
+    @WithUserDetails("vova")
+    public void givenWorkerWhenDeleteTaskThenRemoved() throws Exception {
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/project/2/task/3")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
 }
