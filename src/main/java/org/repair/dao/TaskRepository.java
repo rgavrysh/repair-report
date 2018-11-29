@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends MongoRepository<JobTask, Long> {
+public interface TaskRepository extends MongoRepository<JobTask, String> {
     Optional<JobTask> findOneByShortDescriptionAndTariff(String shortDescription, Double tariff);
 }

@@ -16,7 +16,6 @@
             crossorigin="anonymous"></script>
 
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function(){
             var url = new URL(window.location.href);
@@ -77,22 +76,21 @@
                 table.append(head);
 
 //tbody
-                var tasksMap = Object.keys(data.tasks);
                 var tbody = $("<tbody>");
-                tasksMap.forEach(function(key){
-                    var asObject = JSON.parse(key);
+                var i = 0;
+                data.tasks.forEach(function(entry){
                     var tbr = $("<tr>");
-                    var index = $("<th>").attr("scope", "row").addClass("t_row").text(asObject.id); //column index
-                    var taskDescription = $("<td>").addClass("t_data").text(asObject.description);
-                    var taskTariff = $("<td>").addClass("t_data").text(asObject.tariff);
-                    var taskQty = $("<td>").addClass("t_data").text(data.tasks[key]);
-                    var total = $("<td>").addClass("t_data").text(asObject.tariff*data.tasks[key]);
+                    var index = $("<th>").attr("scope", "row").addClass("t_row").text(++i); //column index
+                    var taskDescription = $("<td>").addClass("t_data").text(entry.description);
+                    var taskTariff = $("<td>").addClass("t_data").text(entry.tariff);
+                    var taskQty = $("<td>").addClass("t_data").text(entry.quantity);
+                    var total = $("<td>").addClass("t_data").text(entry.tariff*entry.quantity);
                     var deleteButton = $("<a>").attr("href", "#").addClass("badge badge-pill badge-danger").text("remove");
                         deleteButton.click(function(){
-                            console.log("Remove job from current project. " + asObject.id);
+                            console.log("Remove job from current project. " + entry.id);
                             $.ajax({
                                 type: "DELETE",
-                                url: "/project/" + data.id + "/task/" + asObject.id,
+                                url: "/project/" + data.id + "/task/" + entry.id,
                                 beforeSend: function(request) {
                                     request.setRequestHeader("X-CSRF-TOKEN", csrfToken);
                                 }
@@ -150,10 +148,10 @@
                     window.alert("Fill in fields.");
                     return false;
                 }
-                var newTask = {"shortDescription":$("#task-desc-input").val(), "tariff": $("#tariff").val(), "qty": $("#qty").val()};
+                var newTask = {"shortDescription":$("#task-desc-input").val(), "tariff": $("#tariff").val(), "quantity": $("#qty").val()};
                 $.ajax({
                     type: "POST",
-                    url: "/task?id="+projectId,
+                    url: "/project/" + projectId + "/task",
                     dataType: "json",
                     data: JSON.stringify(newTask),
                     contentType: "application/json",
@@ -205,6 +203,7 @@
 
 
     </script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-light bg-light">

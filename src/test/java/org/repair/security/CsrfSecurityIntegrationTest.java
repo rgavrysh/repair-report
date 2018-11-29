@@ -47,7 +47,7 @@ public class CsrfSecurityIntegrationTest {
     }
 
     @Test
-    @WithUserDetails("andriy")
+    @WithUserDetails("vova")
     public void givenCsrfWhenAddProjectThenCreated() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/project")
@@ -58,7 +58,7 @@ public class CsrfSecurityIntegrationTest {
     }
 
     @Test
-    @WithUserDetails("andriy")
+    @WithUserDetails("vova")
     public void givenUserWithNoCSRF_WhenAddProject_ThenForbidden() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/project")

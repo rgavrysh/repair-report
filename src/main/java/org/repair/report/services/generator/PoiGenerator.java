@@ -57,13 +57,13 @@ public class PoiGenerator implements ReportGenerator {
             tableHeader.getCell(3).setText("qty");
             tableHeader.getCell(4).setText("total");
 
-            project.getTasks().forEach((job, qty) -> {
+            project.getTasks().forEach((job) -> {
                 XWPFTableRow row = table.createRow();
                 row.getCell(0).setText(String.valueOf(counter.getAndIncrement()));
                 row.getCell(1).setText(job.getShortDescription());
                 row.getCell(2).setText(String.valueOf(job.getTariff()));
-                row.getCell(3).setText(String.valueOf(qty));
-                row.getCell(4).setText(String.valueOf(job.getTariff() * qty));
+                row.getCell(3).setText(String.valueOf(job.getQuantity()));
+                row.getCell(4).setText(String.valueOf(job.getTariff() * job.getQuantity()));
             });
 
             table.setTopBorder(XWPFTable.XWPFBorderType.SINGLE, 7, 5, colorBlack);

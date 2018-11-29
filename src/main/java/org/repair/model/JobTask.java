@@ -1,15 +1,20 @@
 package org.repair.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 public class JobTask implements Serializable {
 
     private static final long serialVersionUID = 1l;
-    private Long id;
+    private String id;
     private String shortDescription;
     private String description;
     private Double tariff;
+    private Double quantity;
+    @JsonBackReference
+    private String projectId;
 
     public JobTask() {
     }
@@ -18,8 +23,13 @@ public class JobTask implements Serializable {
         this.shortDescription = dsc;
         this.tariff = tariff;
     }
+    public JobTask(String dsc, Double tariff, Double qty) {
+        this.shortDescription = dsc;
+        this.tariff = tariff;
+        this.quantity = qty;
+    }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -47,12 +57,29 @@ public class JobTask implements Serializable {
         this.tariff = tariff;
     }
 
+    public Double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Double quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
     @Override
     public String toString() {
         return "{" +
                 "id:" + id +
                 ", shortDescription:'" + shortDescription + '\'' +
                 ", description:'" + description + '\'' +
+                ", quantity:'" + quantity + '\'' +
                 ", tariff:" + tariff +
                 '}';
     }

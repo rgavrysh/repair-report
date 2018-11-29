@@ -1,14 +1,13 @@
 package org.repair.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.apache.commons.collections4.map.HashedMap;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 public class Project implements Serializable {
@@ -23,13 +22,10 @@ public class Project implements Serializable {
     private Double floor;
     private Double ceiling;
     private Double slopes;
-
     @JsonBackReference
     private String workerId;
-
-    @JsonSerialize(keyUsing = TasksSerializer.class)
-    @JsonDeserialize(keyUsing = TasksDeserializer.class)
-    private Map<JobTask, Double> tasks = new HashedMap<>();
+    @DBRef(db = "report")
+    private List<JobTask> tasks;
 
     public Project() {
     }
@@ -112,8 +108,8 @@ public class Project implements Serializable {
         this.slopes = slopes;
     }
 
-    public Map<JobTask, Double> getTasks() {
-        return Collections.unmodifiableMap(this.tasks);
+    public List<JobTask> getTasks() {
+        return (tasks != null) ? Collections.unmodifiableList(tasks) : Collections.emptyList();
     }
 
     @Override
@@ -139,9 +135,18 @@ public class Project implements Serializable {
         return Objects.hash(id, address);
     }
 
-    public boolean addCustomJobTask(JobTask jobTask, Double quantity) {
-        this.tasks.put(jobTask, quantity);
-        return true;
+    public boolean addCustomJobTask(JobTask jobTask) {
+        if (this.tasks == null) {
+            this.tasks = new ArrayList<>();
+        }
+        return this.tasks.add(jobTask);
+    }
+
+    public boolean removeTask(JobTask jobTask) {
+        if (this.tasks == null || this.tasks.isEmpty()) {
+            return false;
+        }
+        return this.tasks.remove(jobTask);
     }
 
     public Project update(Project updated) {

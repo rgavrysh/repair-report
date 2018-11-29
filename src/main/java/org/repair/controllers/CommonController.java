@@ -1,11 +1,11 @@
 package org.repair.controllers;
 
 import org.repair.dao.ProjectRepository;
-import org.repair.dao.ProjectTasksRepository;
 import org.repair.dao.TaskRepository;
 import org.repair.dao.WorkerRepository;
-import org.repair.dto.TaskDTO;
-import org.repair.model.*;
+import org.repair.model.JobTask;
+import org.repair.model.Project;
+import org.repair.model.Worker;
 import org.repair.report.services.generator.ReportGenerator;
 import org.repair.services.LoginDetailService;
 import org.slf4j.Logger;
@@ -15,11 +15,9 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,9 +44,6 @@ public class CommonController {
     private ProjectRepository projectRepository;
 
     @Autowired
-    private ProjectTasksRepository projectTasksRepository;
-
-    @Autowired
     private ReportGenerator reportGenerator;
 
     @GetMapping(value = "/principal")
@@ -66,8 +61,8 @@ public class CommonController {
     }
 
     @GetMapping(value = "/projects")
-    public List<Project> getProjects(@AuthenticationPrincipal UserDetails principal) {
-        return projectRepository.findByWorkerId(((LoginDetailService.WorkerDetail) principal).getId());
+    public List<Project> getProjects(@AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
+        return principal.getWorker().getProjects();
     }
 
     @GetMapping(value = "/project/{id}")
@@ -103,9 +98,11 @@ public class CommonController {
     @PostMapping(value = "/project", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public Project createProject(@RequestBody Project project, @AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
-        Optional<Worker> executor = workerRepository.findById(principal.getId());
-        project.setWorkerId(executor.orElseThrow(RuntimeException::new).getId());
-        return projectRepository.save(project);
+        project.setWorkerId(principal.getId());
+        principal.getWorker().addProject(project);
+        Project savedProject = projectRepository.save(project);
+        workerRepository.save(principal.getWorker());
+        return savedProject;
     }
 
     @GetMapping(value = "/tasks/descriptions")
@@ -114,33 +111,36 @@ public class CommonController {
         return tasks.stream().map(JobTask::getShortDescription).collect(Collectors.toSet());
     }
 
-    @PostMapping(value = "/task")
+    @PostMapping(value = "/project/{projectId}/task")
     @ResponseStatus(HttpStatus.CREATED)
-    public JobTask addNewTaskToProject(@PathParam("project") final String id, @RequestBody TaskDTO taskDTO) {
+    public JobTask addNewTaskToProject(@PathVariable("projectId") final String projectId, @RequestBody JobTask newTask) {
+        Project project = projectRepository.findById(projectId).get();
         Optional<JobTask> repositoryOneByShortDescriptionAndTariff =
-                taskRepository.findOneByShortDescriptionAndTariff(taskDTO.getShortDescription(), taskDTO.getTariff());
+                taskRepository.findOneByShortDescriptionAndTariff(newTask.getShortDescription(), newTask.getTariff());
         if (repositoryOneByShortDescriptionAndTariff.isPresent()) {
-            bindTaskToProject(Long.valueOf(id), repositoryOneByShortDescriptionAndTariff.get().getId(), taskDTO.getQty());
-            return repositoryOneByShortDescriptionAndTariff.get();
+            JobTask jobTask = repositoryOneByShortDescriptionAndTariff.get();
+            jobTask.setProjectId(projectId);
+            JobTask savedTask = taskRepository.save(jobTask);
+            project.addCustomJobTask(savedTask);
+            projectRepository.save(project);
+            return savedTask;
         }
-        JobTask jobTask = new JobTask(taskDTO.getShortDescription(), taskDTO.getTariff());
-        //duplicate short description to description
-        jobTask.setDescription(taskDTO.getShortDescription());
-        JobTask saved = taskRepository.save(jobTask);
-        bindTaskToProject(Long.valueOf(id), saved.getId(), taskDTO.getQty());
-        return saved;
-    }
-
-    private ProjectTasks bindTaskToProject(Long projectId, Long taskId, Double qty) {
-        ProjectTasks projectTasks = new ProjectTasks(projectId, taskId);
-        projectTasks.setQty(qty);
-        return projectTasksRepository.save(projectTasks);
+        //duplicate short-description to description
+        newTask.setDescription(newTask.getShortDescription());
+        newTask.setProjectId(projectId);
+        JobTask savedTask = taskRepository.save(newTask);
+        project.addCustomJobTask(savedTask);
+        projectRepository.save(project);
+        return savedTask;
     }
 
     @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable("projectId") final String projectId, @PathVariable("taskId") final String taskId) {
-        ProjectTasksId projectTasksId = new ProjectTasksId(Long.valueOf(projectId), Long.valueOf(taskId));
-        projectTasksRepository.deleteById(projectTasksId);
+        JobTask task = taskRepository.findById(taskId).get();
+        Project project = projectRepository.findById(projectId).get();
+        project.removeTask(task);
+        projectRepository.save(project);
+        taskRepository.deleteById(taskId);
     }
 }

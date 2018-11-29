@@ -41,22 +41,22 @@ public class PdfGenerator implements ReportGenerator {
                     jobTable.addCell(header);
                 });
 
-        project.getTasks().entrySet().stream().forEach(entry -> {
+        project.getTasks().stream().forEach(entry -> {
             PdfPCell num = new PdfPCell(Phrase.getInstance(String.valueOf(counter.getAndIncrement())));
             num.setHorizontalAlignment(Element.ALIGN_CENTER);
             num.setVerticalAlignment(Element.ALIGN_CENTER);
             num.setHorizontalAlignment(Element.ALIGN_JUSTIFIED_ALL);
             jobTable.addCell(num);
 
-            PdfPCell desc = new PdfPCell(Phrase.getInstance(entry.getKey().getShortDescription()));
+            PdfPCell desc = new PdfPCell(Phrase.getInstance(entry.getShortDescription()));
             desc.setHorizontalAlignment(Element.ALIGN_CENTER);
             desc.setVerticalAlignment(Element.ALIGN_CENTER);
             desc.setHorizontalAlignment(Element.ALIGN_JUSTIFIED_ALL);
             jobTable.addCell(desc);
 
-            jobTable.addCell(entry.getKey().getTariff().toString());
-            jobTable.addCell(entry.getValue().toString());
-            jobTable.addCell(String.valueOf(entry.getKey().getTariff() * entry.getValue()));
+            jobTable.addCell(entry.getTariff().toString());
+            jobTable.addCell(entry.toString());
+            jobTable.addCell(String.valueOf(entry.getTariff() * entry.getQuantity()));
 
         });
 

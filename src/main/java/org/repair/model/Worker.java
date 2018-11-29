@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -55,7 +56,14 @@ public class Worker implements Serializable {
     }
 
     public List<Project> getProjects() {
-        return Collections.unmodifiableList(projects);
+        return (projects != null) ? Collections.unmodifiableList(projects) : Collections.emptyList();
+    }
+
+    public boolean addProject(Project project) {
+        if (this.projects == null) {
+            this.projects = new ArrayList<>();
+        }
+        return this.projects.add(project);
     }
 
     @Override
