@@ -1,3 +1,11 @@
+# DATA SOURCE
+spring:
+  data:
+    mongodb:
+      host: 'localhost'
+      port: 27017
+      database: 'report'
+
 # LOGGING
 logging:
   file: ./logs/app.log

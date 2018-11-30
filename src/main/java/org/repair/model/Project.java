@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Project implements Serializable {
 
@@ -25,7 +22,7 @@ public class Project implements Serializable {
     @JsonBackReference
     private String workerId;
     @DBRef(db = "report")
-    private List<JobTask> tasks;
+    private Set<JobTask> tasks;
 
     public Project() {
     }
@@ -108,8 +105,8 @@ public class Project implements Serializable {
         this.slopes = slopes;
     }
 
-    public List<JobTask> getTasks() {
-        return (tasks != null) ? Collections.unmodifiableList(tasks) : Collections.emptyList();
+    public Set<JobTask> getTasks() {
+        return (tasks != null) ? Collections.unmodifiableSet(tasks) : Collections.emptySet();
     }
 
     @Override
@@ -137,7 +134,7 @@ public class Project implements Serializable {
 
     public boolean addCustomJobTask(JobTask jobTask) {
         if (this.tasks == null) {
-            this.tasks = new ArrayList<>();
+            this.tasks = new HashSet<>();
         }
         return this.tasks.add(jobTask);
     }

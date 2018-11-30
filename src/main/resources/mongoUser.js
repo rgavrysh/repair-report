@@ -1,2 +1,3 @@
 use report
-db.worker.insertOne({name: "vova", password: "$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK", role: "ADMIN"})
+db.worker.insertOne({name: "vova", password: "$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK", role: "ADMIN", projects: []})
+db.worker.insertOne({name: "andy", password: "$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK", role: "USER", projects: []})
