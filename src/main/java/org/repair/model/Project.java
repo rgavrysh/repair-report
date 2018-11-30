@@ -1,11 +1,13 @@
 package org.repair.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Project implements Serializable {
 
@@ -14,11 +16,7 @@ public class Project implements Serializable {
     private String clientName;
     private String clientPhone;
     private Address address;
-    //todo: use @Embedded object for dimensions
-    private Double walls;
-    private Double floor;
-    private Double ceiling;
-    private Double slopes;
+    private ObjectDimensions dimensions;
     @JsonBackReference
     private String workerId;
     @DBRef(db = "report")
@@ -27,14 +25,11 @@ public class Project implements Serializable {
     public Project() {
     }
 
-    public Project(String clientName, String clientPhone, Address address, Double walls, Double floor, Double ceiling, Double slopes) {
+    public Project(String clientName, String clientPhone, Address address, ObjectDimensions dimensions) {
         this.clientName = clientName;
         this.clientPhone = clientPhone;
         this.address = address;
-        this.walls = walls;
-        this.floor = floor;
-        this.ceiling = ceiling;
-        this.slopes = slopes;
+        this.dimensions = dimensions;
     }
 
     public String getId() {
@@ -73,36 +68,12 @@ public class Project implements Serializable {
         this.address = address;
     }
 
-    public Double getWalls() {
-        return walls;
+    public ObjectDimensions getDimensions() {
+        return dimensions;
     }
 
-    public void setWalls(Double walls) {
-        this.walls = walls;
-    }
-
-    public Double getFloor() {
-        return floor;
-    }
-
-    public void setFloor(Double floor) {
-        this.floor = floor;
-    }
-
-    public Double getCeiling() {
-        return ceiling;
-    }
-
-    public void setCeiling(Double ceiling) {
-        this.ceiling = ceiling;
-    }
-
-    public Double getSlopes() {
-        return slopes;
-    }
-
-    public void setSlopes(Double slopes) {
-        this.slopes = slopes;
+    public void setDimensions(ObjectDimensions dimensions) {
+        this.dimensions = dimensions;
     }
 
     public Set<JobTask> getTasks() {
@@ -150,10 +121,7 @@ public class Project implements Serializable {
         setClientName(updated.getClientName());
         setClientPhone(updated.getClientPhone());
         setAddress(updated.getAddress());
-        setWalls(updated.getWalls());
-        setFloor(updated.getFloor());
-        setCeiling(updated.getCeiling());
-        setSlopes(updated.getSlopes());
+        setDimensions(updated.getDimensions());
         return this;
     }
 }

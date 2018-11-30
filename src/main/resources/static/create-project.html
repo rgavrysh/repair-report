@@ -26,7 +26,7 @@
             });
 // Create new Project
             $("#add-btn").click(function(){
-                var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "address": {"city": $("#city").val(), "street": $("#street").val(), "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "postalCode": $("#postal").val()}, "walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(), "slopes": $("#slopes").val()};
+                var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "address": {"city": $("#city").val(), "street": $("#street").val(), "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "postalCode": $("#postal").val()}, "dimensions": {"walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(), "slopes": $("#slopes").val()}};
                 console.log(obj);
                 $.ajax({
                     type: "POST",

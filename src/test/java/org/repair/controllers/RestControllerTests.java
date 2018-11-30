@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.repair.PrintReport;
 import org.repair.model.Address;
+import org.repair.model.ObjectDimensions;
 import org.repair.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -68,7 +69,8 @@ public class RestControllerTests {
     @WithUserDetails("vova")
     public void givenWorkerWhenUpdateProjectThenSaved() throws Exception {
         Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
-        Project project = new Project("Roman", "380979617254", address, 0.0, 0.0, 0.0, 0.0);
+        ObjectDimensions dimensions = new ObjectDimensions(0.0, 0.0, 0.0, 0.0);
+        Project project = new Project("Roman", "380979617254", address, dimensions);
         mockMvc.perform(MockMvcRequestBuilders.put("/project/1")
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)

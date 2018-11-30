@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.repair.model.Address;
 import org.repair.model.JobTask;
+import org.repair.model.ObjectDimensions;
 import org.repair.model.Project;
 import org.repair.report.services.generator.PoiGenerator;
 import org.repair.report.services.generator.ReportGenerator;
@@ -23,7 +24,8 @@ public class PrintReportTest {
         reportName = "./src/test/resources/wordPoiReport.docx";
         // TODO: 27/11/2018 Give JSON as input
         Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
-        project = new Project("Roman", "380979617254", address, 0.0, 0.0, 0.0, 0.0);
+        ObjectDimensions dimensions = new ObjectDimensions(0.0, 0.0, 0.0, 0.0);
+        project = new Project("Roman", "380979617254", address, dimensions);
         project.addCustomJobTask(new JobTask("Wall Painting", 15.0, 100.0));
         project.addCustomJobTask(new JobTask("Bricks construction", 35.0, 100.0));
     }

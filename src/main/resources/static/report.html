@@ -45,10 +45,10 @@
                 $("#apartment").val(data.address.apartment);
                 $("#city").val(data.address.city);
                 $("#postal").val(data.address.postalCode);
-                $("#walls").val(data.walls);
-                $("#ceilings").val(data.ceiling);
-                $("#floors").val(data.floor);
-                $("#slopes").val(data.slopes);
+                $("#walls").val(data.dimensions.walls);
+                $("#ceilings").val(data.dimensions.ceiling);
+                $("#floors").val(data.dimensions.floor);
+                $("#slopes").val(data.dimensions.slopes);
                 var download = $("<button>").attr("id", "gen-repo").attr("class", "btn btn-success").text("Generate Report");
                 download.click(function(){
                     window.location.href = "/download/"+projectId;
@@ -178,7 +178,7 @@
                     $("#edit-btn span").text("Save");
                     $("#project-info").removeAttr("disabled");
                 } else {
-                    var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "address": {"city": $("#city").val(), "street": $("#street").val(), "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "postalCode": $("#postal").val()}, "walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(), "slopes": $("#slopes").val()};
+                    var obj = {"clientName":$("#clientname").val(), "clientPhone": $("#clientphone").val(), "address": {"city": $("#city").val(), "street": $("#street").val(), "streetNumber": $("#streetnumber").val(), "apartment": $("#apartment").val(), "postalCode": $("#postal").val()}, "dimensions": {"walls": $("#walls").val(), "floor": $("#floors").val(), "ceiling": $("#ceilings").val(), "slopes": $("#slopes").val()}};
                     console.log(obj);
                     $.ajax({
                         type: "PUT",

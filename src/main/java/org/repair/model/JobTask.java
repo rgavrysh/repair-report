@@ -23,6 +23,7 @@ public class JobTask implements Serializable {
         this.shortDescription = dsc;
         this.tariff = tariff;
     }
+
     public JobTask(String dsc, Double tariff, Double qty) {
         this.shortDescription = dsc;
         this.tariff = tariff;

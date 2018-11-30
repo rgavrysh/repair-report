@@ -9,7 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 @Service
 public class LoginDetailService implements UserDetailsService {
@@ -35,7 +37,6 @@ public class LoginDetailService implements UserDetailsService {
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
-            //todo: decompose role to separate table
             GrantedAuthority grantedAuthority = worker::getRole;
             return Collections.singleton(grantedAuthority);
         }

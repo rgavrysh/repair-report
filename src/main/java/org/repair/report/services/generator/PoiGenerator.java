@@ -33,10 +33,10 @@ public class PoiGenerator implements ReportGenerator {
 
             XWPFParagraph header = document.createParagraph();
             XWPFRun detailsRun = header.createRun();
-            addDetailsToXWPFRun(detailsRun, "Walls: ", String.valueOf(project.getWalls()));
-            addDetailsToXWPFRun(detailsRun, "Floor: ", String.valueOf(project.getFloor()));
-            addDetailsToXWPFRun(detailsRun, "Ceiling: ", String.valueOf(project.getCeiling()));
-            addDetailsToXWPFRun(detailsRun, "Slopes: ", String.valueOf(project.getSlopes()));
+            addDetailsToXWPFRun(detailsRun, "Walls: ", String.valueOf(project.getDimensions().getWalls()));
+            addDetailsToXWPFRun(detailsRun, "Floor: ", String.valueOf(project.getDimensions().getFloor()));
+            addDetailsToXWPFRun(detailsRun, "Ceiling: ", String.valueOf(project.getDimensions().getCeiling()));
+            addDetailsToXWPFRun(detailsRun, "Slopes: ", String.valueOf(project.getDimensions().getSlopes()));
 
             detailsRun.addCarriageReturn();
             detailsRun.setBold(true);

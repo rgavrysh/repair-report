@@ -1,14 +1,23 @@
 package org.repair.model;
 
-//todo: Use this class as Embeddable for Projects dimensions
-public class ObjectDimensions {
+import java.io.Serializable;
+
+public class ObjectDimensions implements Serializable {
+    private static final long serialVersionUID = 2L;
+
+    private Double walls;
     private Double floor;
     private Double ceiling;
-    private Double walls;
     private Double slopes;
 
     public ObjectDimensions() {
-        throw new UnsupportedOperationException("Should not be called until @Embeddable support.");
+    }
+
+    public ObjectDimensions(Double walls, Double floor, Double ceiling, Double slopes) {
+        this.walls = walls;
+        this.floor = floor;
+        this.ceiling = ceiling;
+        this.slopes = slopes;
     }
 
     public Double getFloor() {

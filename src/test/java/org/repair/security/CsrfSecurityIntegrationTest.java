@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.repair.PrintReport;
 import org.repair.controllers.CommonController;
 import org.repair.model.Address;
+import org.repair.model.ObjectDimensions;
 import org.repair.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -83,7 +84,8 @@ public class CsrfSecurityIntegrationTest {
 
     private String createProject() throws JsonProcessingException {
         Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
-        Project project = new Project("Roman", "380979617254", address, 0.0, 0.0, 0.0, 0.0);
+        ObjectDimensions dimensions = new ObjectDimensions(0.0, 0.0, 0.0, 0.0);
+        Project project = new Project("Roman", "380979617254", address, dimensions);
         return new ObjectMapper().writeValueAsString(project);
     }
 }
