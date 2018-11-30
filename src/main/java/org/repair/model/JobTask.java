@@ -19,11 +19,6 @@ public class JobTask implements Serializable {
     public JobTask() {
     }
 
-    public JobTask(String dsc, Double tariff) {
-        this.shortDescription = dsc;
-        this.tariff = tariff;
-    }
-
     public JobTask(String dsc, Double tariff, Double qty) {
         this.shortDescription = dsc;
         this.tariff = tariff;
@@ -90,13 +85,13 @@ public class JobTask implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JobTask jobTask = (JobTask) o;
-        return Objects.equals(id, jobTask.id) &&
-                Objects.equals(shortDescription, jobTask.shortDescription) &&
-                Objects.equals(tariff, jobTask.tariff);
+        return Objects.equals(shortDescription, jobTask.shortDescription) &&
+                Objects.equals(tariff, jobTask.tariff) &&
+                Objects.equals(quantity, jobTask.quantity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, shortDescription, tariff);
+        return Objects.hash(shortDescription, tariff, quantity);
     }
 }

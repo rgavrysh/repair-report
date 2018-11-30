@@ -7,12 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.repair.PrintReport;
-import org.repair.model.Address;
-import org.repair.model.ObjectDimensions;
-import org.repair.model.Project;
+import org.repair.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -34,7 +35,12 @@ public class RestControllerTests {
     private WebApplicationContext context;
     @Autowired
     private ObjectMapper jsonMapper;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    private Worker worker;
     private Project testProject;
+    private JobTask task;
 
     @Before
     @WithUserDetails("vova")
@@ -43,12 +49,11 @@ public class RestControllerTests {
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
         testProject = createTestProject();
-        testProject = jsonMapper.readValue(mockMvc.perform(
-                MockMvcRequestBuilders.post("/project")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(testProject))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andReturn().getResponse().getContentAsString(), Project.class);
+
+        testProject = mongoTemplate.save(testProject);
+        worker = mongoTemplate.findOne(Query.query(Criteria.where("name").is("vova")), Worker.class);
+        worker.addProject(testProject);
+        worker = mongoTemplate.save(worker);
     }
 
     @Test
@@ -60,7 +65,7 @@ public class RestControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty());
     }
 
-//    @Test
+    //    @Test
 //    @WithUserDetails("andy")
     public void givenWorkerWhenGetProjectsThenAllFound() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/projects"))
@@ -95,7 +100,6 @@ public class RestControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.get("/tasks/descriptions"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("[]"));
-//                .andExpect(MockMvcResultMatchers.content().string("[\"walls painting\",\"bricks construction\"]"));
     }
 
     @Test
@@ -108,13 +112,59 @@ public class RestControllerTests {
         Assert.assertTrue(response.getContentLength() > 0);
     }
 
+    @Test
+    @WithUserDetails("vova")
+    public void givenWorkerWhenAddTaskThenNewCreated() throws Exception {
+        task = new JobTask("Test desc", 10.0, 100.0);
+        task = jsonMapper.readValue(mockMvc.perform(
+                MockMvcRequestBuilders.post("/project/" + testProject.getId() + "/task")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(task))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("description").value("Test desc"))
+                .andReturn().getResponse().getContentAsString(), JobTask.class);
+    }
+
+    //    @Test
+//    @WithUserDetails("vova")
+    public void givenWorkerWhenExistedTaskAddedThenProjectContains() throws Exception {
+        JobTask testTask = new JobTask("Test desc", 10.0, 100.0);
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/project/2/task")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(testTask))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @Test
+    @WithUserDetails("vova")
+    public void givenWorkerWhenDeleteTaskThenRemoved() throws Exception {
+        task = new JobTask("Test desc", 10.0, 100.0);
+        task = mongoTemplate.save(task);
+        testProject.addCustomJobTask(task);
+        testProject = mongoTemplate.save(testProject);
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/project/" + testProject.getId() + "/task/" + task.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+        ).andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
     @After
     @WithUserDetails("vova")
     public void tearDown() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                .delete("/project/" + testProject.getId())
-                .with(SecurityMockMvcRequestPostProcessors.csrf()));
+        if (task != null && testProject != null) {
+            testProject.removeTask(task);
+            mongoTemplate.remove(task);
+        }
+        if (testProject != null && worker != null) {
+            worker.removeProject(testProject);
+            worker = mongoTemplate.save(worker);
+            mongoTemplate.remove(testProject);
+        }
         testProject = null;
+        task = null;
     }
 
     private Project createTestProject() {

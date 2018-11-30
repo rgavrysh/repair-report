@@ -1,7 +1,6 @@
 package org.repair.dao;
 
 import org.repair.model.Project;
-import org.repair.model.Worker;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
