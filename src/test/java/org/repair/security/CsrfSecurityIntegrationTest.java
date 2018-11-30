@@ -2,6 +2,7 @@ package org.repair.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +35,17 @@ public class CsrfSecurityIntegrationTest {
     private WebApplicationContext context;
     @Autowired
     private CommonController controller;
+    @Autowired
+    private ObjectMapper jsonMapper;
+
+    private Project testProject;
 
     @Before
-    public void setup() {
+    public void setup() throws JsonProcessingException {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
+        testProject = createProject();
     }
 
     @Test
@@ -50,12 +56,13 @@ public class CsrfSecurityIntegrationTest {
     @Test
     @WithUserDetails("vova")
     public void givenCsrfWhenAddProjectThenCreated() throws Exception {
-        mockMvc.perform(
+        testProject = jsonMapper.readValue(mockMvc.perform(
                 MockMvcRequestBuilders.post("/project")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(createProject())
+                        .content(jsonMapper.writeValueAsString(testProject))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-        ).andExpect(MockMvcResultMatchers.status().isCreated());
+        ).andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn().getResponse().getContentAsString(), Project.class);
     }
 
     @Test
@@ -64,7 +71,7 @@ public class CsrfSecurityIntegrationTest {
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/project")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(createProject())
+                        .content(jsonMapper.writeValueAsString(testProject))
         ).andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
@@ -82,10 +89,18 @@ public class CsrfSecurityIntegrationTest {
                 .andExpect(MockMvcResultMatchers.content().string("vova"));
     }
 
-    private String createProject() throws JsonProcessingException {
+    @After
+    @WithUserDetails("vova")
+    public void tearDown() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .delete("/project/" + testProject.getId())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()));
+        testProject = null;
+    }
+
+    private Project createProject() throws JsonProcessingException {
         Address address = new Address("Lviv", "Bandery", "1", "1", "79000");
         ObjectDimensions dimensions = new ObjectDimensions(0.0, 0.0, 0.0, 0.0);
-        Project project = new Project("Roman", "380979617254", address, dimensions);
-        return new ObjectMapper().writeValueAsString(project);
+        return new Project("Roman", "380979617254", address, dimensions);
     }
 }

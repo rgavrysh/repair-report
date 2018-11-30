@@ -66,6 +66,13 @@ public class Worker implements Serializable {
         return this.projects.add(project);
     }
 
+    public boolean removeProject(Project project) {
+        if (this.projects == null || this.projects.isEmpty()) {
+            return false;
+        }
+        return this.projects.remove(project);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

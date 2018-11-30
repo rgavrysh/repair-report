@@ -23,10 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController(value = "/api")
@@ -114,7 +111,7 @@ public class CommonController {
     @PostMapping(value = "/project/{projectId}/task")
     @ResponseStatus(HttpStatus.CREATED)
     public JobTask addNewTaskToProject(@PathVariable("projectId") final String projectId, @RequestBody JobTask newTask) {
-        Project project = projectRepository.findById(projectId).get();
+        Project project = projectRepository.findById(projectId).orElseThrow(NoSuchElementException::new);
         Optional<JobTask> repositoryOneByShortDescriptionAndTariff =
                 taskRepository.findOneByShortDescriptionAndTariff(newTask.getShortDescription(), newTask.getTariff());
         if (repositoryOneByShortDescriptionAndTariff.isPresent()) {
@@ -137,10 +134,22 @@ public class CommonController {
     @DeleteMapping(value = "/project/{projectId}/task/{taskId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable("projectId") final String projectId, @PathVariable("taskId") final String taskId) {
-        JobTask task = taskRepository.findById(taskId).get();
-        Project project = projectRepository.findById(projectId).get();
+        JobTask task = taskRepository.findById(taskId).orElseThrow(NoSuchElementException::new);
+        Project project = projectRepository.findById(projectId).orElseThrow(NoSuchElementException::new);
         project.removeTask(task);
         projectRepository.save(project);
-        taskRepository.deleteById(taskId);
+        taskRepository.delete(task);
+    }
+
+    @DeleteMapping(value = "/project/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProject(@PathVariable("projectId") final String projectId, @AuthenticationPrincipal LoginDetailService.WorkerDetail principal) {
+        Optional<Project> optional = projectRepository.findById(projectId);
+        if (optional.isPresent()) {
+            Project project = optional.get();
+            principal.getWorker().removeProject(project);
+            workerRepository.save(principal.getWorker());
+            projectRepository.delete(project);
+        }
     }
 }
