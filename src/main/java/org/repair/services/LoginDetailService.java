@@ -31,7 +31,7 @@ public class LoginDetailService implements UserDetailsService {
     public static final class WorkerDetail extends Worker implements UserDetails {
         private final Worker worker;
 
-        private WorkerDetail(Worker worker) {
+        public WorkerDetail(Worker worker) {
             this.worker = worker;
         }
 

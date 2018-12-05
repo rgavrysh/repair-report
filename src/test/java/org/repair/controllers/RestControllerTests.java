@@ -1,30 +1,37 @@
 package org.repair.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.repair.PrintReport;
+import org.repair.dao.ProjectRepository;
+import org.repair.dao.TaskRepository;
+import org.repair.dao.WorkerRepository;
 import org.repair.model.*;
+import org.repair.services.LoginDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PrintReport.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -38,26 +45,38 @@ public class RestControllerTests {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @MockBean
+    private WorkerRepository workerRepository;
+    @MockBean
+    private ProjectRepository projectRepository;
+    @MockBean
+    private TaskRepository taskRepository;
+
     private Worker worker;
     private Project testProject;
     private JobTask task;
 
     @Before
-    @WithUserDetails("vova")
     public void setup() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
         testProject = createTestProject();
+        task = new JobTask("Test desc", 10.0, 100.0);
+        task.setDescription(task.getShortDescription());
+        Worker mockedWorker = new Worker("vova", "$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK");
+        mockedWorker.setRole("ADMIN");
+        Mockito.when(workerRepository.findOneByName("vova")).thenReturn(mockedWorker);
+        Mockito.when(workerRepository.findAll()).thenReturn(new ArrayList<>(Arrays.asList(mockedWorker)));
+        Mockito.when(projectRepository.findById("1")).thenReturn(java.util.Optional.ofNullable(testProject));
+        Mockito.when(projectRepository.save(testProject)).thenReturn(testProject);
+        Mockito.when(taskRepository.findAll()).thenReturn(Collections.emptyList());
+        Mockito.when(taskRepository.findById("1")).thenReturn(java.util.Optional.ofNullable(task));
+        Mockito.when(taskRepository.findOneByShortDescriptionAndTariff("Task desc", 10.0)).thenReturn(java.util.Optional.ofNullable(task));
+        Mockito.when(taskRepository.save(task)).thenReturn(task);
 
-        testProject = mongoTemplate.save(testProject);
-        worker = mongoTemplate.findOne(Query.query(Criteria.where("name").is("vova")), Worker.class);
-        worker.addProject(testProject);
-        worker = mongoTemplate.save(worker);
     }
 
     @Test
-    @WithUserDetails("vova")
     public void whenGetWorkersThenAllFound() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/workers"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -65,28 +84,17 @@ public class RestControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty());
     }
 
-    //    @Test
-//    @WithUserDetails("andy")
-    public void givenWorkerWhenGetProjectsThenAllFound() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/projects"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-                .andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
-    }
-
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenGetProjectThenRightFound() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/project/" + testProject.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/project/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("clientName").value("Roman"));
     }
 
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenUpdateProjectThenSaved() throws Exception {
         testProject.getAddress().setStreet("Bandery");
-        mockMvc.perform(MockMvcRequestBuilders.put("/project/" + testProject.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put("/project/1")
                 .with(SecurityMockMvcRequestPostProcessors.csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(testProject)))
@@ -95,7 +103,6 @@ public class RestControllerTests {
     }
 
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenGetTasksDescriptionsThenAllReturned() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/tasks/descriptions"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -103,68 +110,54 @@ public class RestControllerTests {
     }
 
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenDownloadReportThenFileGenerated() throws Exception {
-        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get("/download/" + testProject.getId()))
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get("/download/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn().getResponse();
-        response.containsHeader("Content-Disposition");
+        Assert.assertTrue(response.containsHeader("Content-Disposition"));
         Assert.assertTrue(response.getContentLength() > 0);
     }
 
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenAddTaskThenNewCreated() throws Exception {
-        task = new JobTask("Test desc", 10.0, 100.0);
         task = jsonMapper.readValue(mockMvc.perform(
-                MockMvcRequestBuilders.post("/project/" + testProject.getId() + "/task")
+                MockMvcRequestBuilders.post("/project/1/task")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(task))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
         ).andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("description").value("Test desc"))
                 .andReturn().getResponse().getContentAsString(), JobTask.class);
     }
 
-    //    @Test
-//    @WithUserDetails("vova")
-    public void givenWorkerWhenExistedTaskAddedThenProjectContains() throws Exception {
-        JobTask testTask = new JobTask("Test desc", 10.0, 100.0);
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/project/2/task")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(testTask))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-        ).andExpect(MockMvcResultMatchers.status().isCreated());
-    }
-
     @Test
-    @WithUserDetails("vova")
     public void givenWorkerWhenDeleteTaskThenRemoved() throws Exception {
-        task = new JobTask("Test desc", 10.0, 100.0);
-        task = mongoTemplate.save(task);
         testProject.addCustomJobTask(task);
-        testProject = mongoTemplate.save(testProject);
         mockMvc.perform(
-                MockMvcRequestBuilders.delete("/project/" + testProject.getId() + "/task/" + task.getId())
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                MockMvcRequestBuilders.delete("/project/1/task/1")
         ).andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
-    @After
-    @WithUserDetails("vova")
-    public void tearDown() throws Exception {
-        if (task != null && testProject != null) {
-            testProject.removeTask(task);
-            mongoTemplate.remove(task);
-        }
-        if (testProject != null && worker != null) {
-            worker.removeProject(testProject);
-            worker = mongoTemplate.save(worker);
-            mongoTemplate.remove(testProject);
-        }
-        testProject = null;
-        task = null;
+    @Autowired
+    private LoginDetailService loginDetailService;
+
+    @Test
+    public void givenLoginDetailsWhenCheckPriviledgesThenCorrectReturned() throws Exception {
+        Worker worker = new Worker("vova", "$2a$11$N6PHp0OR0dtbRsPPU6.Hc.5s3vV2ATV60KkqhOIMuIjjUPdCwWobK");
+        worker.setRole("ADMIN");
+        LoginDetailService.WorkerDetail workerDetail = new LoginDetailService.WorkerDetail(worker);
+        Mockito.when(workerRepository.findOneByName("vova")).thenReturn(workerDetail);
+        UserDetails user = loginDetailService.loadUserByUsername("vova");
+        Assert.assertNotNull(user);
+        Assert.assertTrue(user.isAccountNonExpired());
+        Assert.assertTrue(user.isEnabled());
+        Assert.assertTrue(user.isCredentialsNonExpired());
+        Assert.assertTrue(user.isAccountNonLocked());
+    }
+
+    @Test(expected = UsernameNotFoundException.class)
+    public void givenInvalidLoginDetailsWhenGetUserDetailsThenThrowsException() throws Exception {
+        Mockito.when(workerRepository.findOneByName("vova")).thenReturn(null);
+        loginDetailService.loadUserByUsername("vova");
     }
 
     private Project createTestProject() {

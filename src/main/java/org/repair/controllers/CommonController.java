@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RestController(value = "/api")
+@RestController
 public class CommonController {
     private static final Logger LOG = LoggerFactory.getLogger("CONTROLLER");
     private static final String REPORTS_FOLDER_PREFIX = "./reports";

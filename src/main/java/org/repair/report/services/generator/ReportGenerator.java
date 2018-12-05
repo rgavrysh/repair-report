@@ -19,6 +19,7 @@ public interface ReportGenerator {
                 Files.createDirectories(Paths.get(fileName).getParent());
             } catch (IOException e) {
                 LOG.error(String.format("Could not create directories: %s", Paths.get(fileName).getParent()));
+                throw new RuntimeException("Could not create directories.");
             }
         }
         return new File(fileName);
